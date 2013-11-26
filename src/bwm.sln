@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bwm", "bwm.vcxproj", "{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02} = {A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "..\wmmousedll\wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Debug|Win32.Build.0 = Debug|Win32
+		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Release|Win32.ActiveCfg = Release|Win32
+		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Release|Win32.Build.0 = Release|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Debug|Win32.Build.0 = Debug|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Release|Win32.ActiveCfg = Release|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

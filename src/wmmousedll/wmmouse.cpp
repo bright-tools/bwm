@@ -12,7 +12,7 @@ bool WMMouse::Init()
 	while (true)
 	{
 		// try to load wmmouse.dll
-		if (! (mMouseDllHinst = LoadLibrary("wmmouse.dll"))) 
+		if (! (mMouseDllHinst = LoadLibraryA("wmmouse.dll"))) 
 			break;
 
 		// check number of instances

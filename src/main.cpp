@@ -10,14 +10,14 @@ NOTIFYICONDATA		nid;
 HINSTANCE			hAppInstance;
 
 static const UINT WM_TRAY_NOTIFY	= (WM_APP + 1000);
-static const char szAppName[]		= "Window Manager";
+static WCHAR szAppName[]		= L"Window Manager";
 
 //
 // spawn a message box
 //
 void Message(const char* message)
 {
-	MessageBox(GetDesktopWindow(),message,"Window Manager", MB_OK);
+	MessageBoxA(GetDesktopWindow(),message,"Window Manager", MB_OK);
 }
 
 //
@@ -30,7 +30,7 @@ bool InitTrayIcon()
 	nid.uID					= 0 ;
 	nid.uFlags				= NIF_MESSAGE | NIF_ICON | NIF_TIP ;	
 	nid.uCallbackMessage	= WM_TRAY_NOTIFY;  
-	strcpy(nid.szTip,szAppName);
+	wcscpy(nid.szTip,szAppName);
 	nid.hIcon				= ::LoadIcon(hAppInstance,MAKEINTRESOURCE(IDI_TRAY)); 
 	
 	if (Shell_NotifyIcon (NIM_ADD,&nid) != TRUE)

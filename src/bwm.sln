@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bwm", "bwm.vcxproj", "{D9E8
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02} = {A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "..\wmmousedll\wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

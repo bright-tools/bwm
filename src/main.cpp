@@ -212,6 +212,7 @@ bool Init(LPSTR lpCmdLine)
 //
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
+	MSG msg;
 	hAppInstance = hInstance;
 	if (!Init(lpCmdLine)) 
 	{
@@ -222,15 +223,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	InitWindow();
 
 	// create the tray icon
-	InitTrayIcon();
-
-	// just get and dispatch messages until we're killed
-	MSG msg;
-    while (GetMessage(&msg,0,0,0))
+	if( InitTrayIcon() )
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	};
+
+		// just get and dispatch messages until we're killed
+		while (GetMessage(&msg,0,0,0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		};
+
+	}
 
 	// remove our mouse hook before saying goodbye
 	WMMouse::RemoveMouseHook();

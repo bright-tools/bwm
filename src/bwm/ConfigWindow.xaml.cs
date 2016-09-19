@@ -28,6 +28,7 @@ namespace bwm
             this.Hide();
 
             mHook.Hook();
+            UpdateKeyboardModifiers();
             setupNotifyIcon();
         }
 
@@ -107,10 +108,8 @@ namespace bwm
             return (n & 0xffff);
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void UpdateKeyboardModifiers()
         {
-            bwm.Properties.Settings.Default.Save();
-
             int count = 0;
             int[] mods = new int[10];
 
@@ -119,7 +118,7 @@ namespace bwm
                 mods[count] = 0x10;
                 count++;
             }
-            if ( Properties.Settings.Default.ModifierAlt )
+            if (Properties.Settings.Default.ModifierAlt)
             {
                 mods[count] = 0x12;
                 count++;
@@ -136,6 +135,14 @@ namespace bwm
             }
 
             mHook.SetKeyboardModifiers(count, mods);
+
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            bwm.Properties.Settings.Default.Save();
+
+            UpdateKeyboardModifiers();
         }
     }
 }

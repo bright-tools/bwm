@@ -1,27 +1,37 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bwm", "bwm.vcxproj", "{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bwm", "..\bwm\bwm.csproj", "{0A5388C0-CFE3-4203-BCC6-218C87EF5168}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02} = {A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Debug|Win32.Build.0 = Debug|Win32
-		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Release|Win32.ActiveCfg = Release|Win32
-		{D9E855C7-E9B2-4892-9EEF-4D5F088593BA}.Release|Win32.Build.0 = Release|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Debug|Win32.Build.0 = Debug|Win32
+		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Release|Any CPU.ActiveCfg = Release|Win32
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Release|Win32.ActiveCfg = Release|Win32
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}.Release|Win32.Build.0 = Release|Win32
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Debug|Win32.Build.0 = Debug|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Release|Win32.ActiveCfg = Release|Any CPU
+		{0A5388C0-CFE3-4203-BCC6-218C87EF5168}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

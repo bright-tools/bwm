@@ -45,7 +45,7 @@ namespace bwm
 
         public void SetKeyboardModifiers(int count, int[] mods)
         {
-            if(mDll != IntPtr.Zero)
+            if (mDll != IntPtr.Zero)
             {
                 m_setModifiers(count, mods);
             }
@@ -67,8 +67,8 @@ namespace bwm
 
         protected static DirectoryInfo GetExecutingDirectory()
         {
-            var location = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase);
-            return new FileInfo(location.AbsolutePath).Directory;
+            Uri location = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase);
+            return new FileInfo(Uri.UnescapeDataString(location.AbsolutePath)).Directory;
         }
 
         bool LoadDLL()

@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmmousedll", "wmmousedll\wmmousedll.vcxproj", "{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bwm", "..\bwm\bwm.csproj", "{0A5388C0-CFE3-4203-BCC6-218C87EF5168}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bwm", "bwm\bwm.csproj", "{0A5388C0-CFE3-4203-BCC6-218C87EF5168}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A4E64B2A-F365-47F8-A5B3-56A52C1B3C02} = {A4E64B2A-F365-47F8-A5B3-56A52C1B3C02}
 	EndProjectSection

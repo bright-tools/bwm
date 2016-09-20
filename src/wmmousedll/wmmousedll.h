@@ -6,5 +6,6 @@
 typedef void (*SETKBHOOK) ();
 typedef void (*REMOVEKBHOOK) ();
 typedef int  (*GETINSTANCECOUNT) ();
+typedef void (*SETMODIFIERS ) ( int count, int mods[] );
 
 #endif // __WMMOUSEDLL_H__

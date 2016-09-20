@@ -1,6 +1,8 @@
 #include "wmmousedll.h"
 #include <windows.h>
 
+#define MAX_NUM_MODIFIER_KEYS 10U
+
 // enum possible states the window manager is in
 enum OpMode
 {
@@ -33,6 +35,8 @@ enum OpMode
 bool            bHooked = false;
 HHOOK            hhook    = 0;
 HINSTANCE        hInst    = 0;
+DWORD mod_count = 2;
+int modifiers[ MAX_NUM_MODIFIER_KEYS ] = { VK_MENU, VK_CONTROL };
 
 BOOL APIENTRY DllMain( HINSTANCE hinstDLL,
                        DWORD  ul_reason_for_call,
@@ -78,74 +82,19 @@ bool IgnoreWindow()
     return false;
 }
 
-/** Attempt to read the modifier keys from the registry
-
-    \param pBuffer    Buffer to receive the key values
-    \param nMaxLength Size of the buffer pointed to by pBuffer
-    \returns Number of bytes read into pBuffer or > nMaxLength in the case that it was not possible to read the values from the registry */
-DWORD GetModifierKeys(BYTE* pBuffer, DWORD nMaxLength )
-{
-    WCHAR szSubKey[] = L"Software\\BrightTools\\BWM";
-    WCHAR szValueName[] = L"ModifierKeys";
-    DWORD ret_val = (DWORD)-1;
-
-    DWORD   rc;
-    DWORD   dwType;
-    HKEY    hOpenedKey;
-
-    if( ERROR_SUCCESS == RegOpenKeyEx ( HKEY_CURRENT_USER,
-                                        szSubKey,
-                                        0,
-                                        KEY_READ,
-                                        &hOpenedKey ) )
-     {
-         rc = RegQueryValueEx( hOpenedKey,
-                               szValueName,
-                               0,
-                               &dwType,
-                               (LPBYTE)pBuffer,
-                               &nMaxLength );
-
-         if(( rc == ERROR_SUCCESS ) &&
-            ( dwType == REG_BINARY ))
-         {
-             ret_val = nMaxLength;
-         }
-
-         RegCloseKey( hOpenedKey );
-    }
-    return ret_val;
-}
-
-#define MAX_NUM_MODIFIER_KEYS 10U
-
 bool CheckModifierKeys()
 {
-    bool ret_val = false;
-    BYTE modifiers[ MAX_NUM_MODIFIER_KEYS ];
+    bool ret_val = true;
 
-    /* Try and read the modifier keys */
-    DWORD mod_count = GetModifierKeys( modifiers, MAX_NUM_MODIFIER_KEYS );
+    unsigned i;
+    /* Check each of the modifiers in turn */
+    for( i = 0;
+         i < mod_count;
+         i++ )
+    {
+        ret_val = ret_val && ::GetAsyncKeyState( modifiers[ i ] );
+    }
 
-    /* Read successful? */
-    if(( mod_count <= MAX_NUM_MODIFIER_KEYS ) &&
-       ( mod_count > 0 ))
-    {
-        unsigned i;
-        ret_val = true;
-        /* Check each of the modifiers in turn */
-        for( i = 0;
-             i < mod_count;
-             i++ )
-        {
-            ret_val = ret_val && ::GetAsyncKeyState( modifiers[ i ] );
-        }
-    }
-    else
-    {
-        /* Use defaults in the case that the registry couldn't be accessed */
-        ret_val = ::GetAsyncKeyState(VK_MENU) && ::GetAsyncKeyState( VK_CONTROL );
-    }
     return ret_val;
 }
 
@@ -360,3 +309,17 @@ DLL_EXPORT int GetInstanceCount()
 {
     return iInstanceCount;
 }
+
+DLL_EXPORT void SetModifiers( int count, int mods[] )
+{
+    if( ( count > 1 ) && ( count < MAX_NUM_MODIFIER_KEYS ) )
+    {
+        int i;
+        for( i = 0; i < count; i++ )
+        {
+            modifiers[ i ] = mods[ i ];
+        }
+        mod_count = count;
+    }
+}
+

@@ -280,9 +280,12 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                     // return to nop mode in all other cases
                     ReleaseCapture();
                     opMode = O_NONE;
+                    return 1;
                 }
-
-                return CallNextHookEx(hhook, nCode, wParam, lParam);
+                else
+                {
+                    return CallNextHookEx( hhook, nCode, wParam, lParam );
+                }
             }
     }
 }
@@ -312,6 +315,7 @@ DLL_EXPORT int GetInstanceCount()
 
 DLL_EXPORT void SetModifiers( int count, int mods[] )
 {
+    
     if( ( count > 1 ) && ( count < MAX_NUM_MODIFIER_KEYS ) )
     {
         int i;

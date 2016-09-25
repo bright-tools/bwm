@@ -112,6 +112,7 @@ namespace bwm
         {
             UpdateKeyboardModifiers();
             UpdateScreenSnap();
+            UpdateWindowSnap();
         }
 
         private void UpdateScreenSnap()
@@ -122,6 +123,16 @@ namespace bwm
                 snapVal = 0;
             }
             mHook.SetScreenSnapMargin(snapVal);
+        }
+
+        private void UpdateWindowSnap()
+        {
+            int snapVal = Properties.Settings.Default.WindowSnapMargin;
+            if (!Properties.Settings.Default.WindowSnapEnabled)
+            {
+                snapVal = 0;
+            }
+            mHook.SetWindowSnapMargin(snapVal);
         }
 
         private void UpdateKeyboardModifiers()

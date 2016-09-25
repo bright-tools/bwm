@@ -97,13 +97,25 @@ namespace bwm.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WindowSnapEnabled {
             get {
-                return ((string)(this["Setting"]));
+                return ((bool)(this["WindowSnapEnabled"]));
             }
             set {
-                this["Setting"] = value;
+                this["WindowSnapEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int WindowSnapMargin {
+            get {
+                return ((int)(this["WindowSnapMargin"]));
+            }
+            set {
+                this["WindowSnapMargin"] = value;
             }
         }
     }

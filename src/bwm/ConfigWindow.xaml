@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:bwm"
         mc:Ignorable="d"
-        Title="BWM Settings" Height="148.667" Width="300" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="BWM Settings" Height="180.667" Width="260.667" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="26*"/>
@@ -20,6 +20,19 @@
             </StackPanel>
         </GroupBox>
         <Button x:Name="button" Content="Apply" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="button_Click" RenderTransformOrigin="0.182,-0.967"/>
+        <GroupBox x:Name="groupBox1" Header="Screen Edge Snap" HorizontalAlignment="Left" Margin="138,10,0,0" VerticalAlignment="Top" Height="68" Grid.RowSpan="2">
+            <Canvas HorizontalAlignment="Left" Height="51" Margin="0,0,-12,-5" VerticalAlignment="Top" Width="106">
+                <Grid HorizontalAlignment="Left" Height="51" VerticalAlignment="Top" Width="100">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="29*"/>
+                        <ColumnDefinition Width="21*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label x:Name="label" Content="px" Margin="1.667,18,16,7" RenderTransformOrigin="0.31,1.077" Grid.Column="1"/>
+                    <CheckBox x:Name="checkBox_Copy4" Content="Enabled" IsChecked="{local:SettingBinding ScreenSnapEnabled}" Margin="0,0,-6,22" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="textBox" TextWrapping="Wrap" IsEnabled="{local:SettingBinding ScreenSnapEnabled}" Text="{local:SettingBinding ScreenSnapMargin}" Margin="0,22,40,6" Grid.ColumnSpan="2"/>
+                </Grid>
+            </Canvas>
+        </GroupBox>
 
     </Grid>
 </Window>

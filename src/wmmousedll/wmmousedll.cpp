@@ -1,4 +1,5 @@
 #include "wmmousedll.h"
+#include <Dwmapi.h>
 #include <windows.h>
 
 #define MAX_NUM_MODIFIER_KEYS 10U
@@ -10,6 +11,22 @@ enum OpMode
     O_MOVE,    // we're dragging a window
     O_SIZE    // we're sizing a window
 };
+
+typedef struct
+{
+	RECT rect;
+	LONG snap;
+} snap_t;
+
+typedef struct
+{
+	snap_t* snap_list;
+	unsigned size;
+	unsigned next;
+} snap_info_t;
+
+#define DEFAULT_SNAP_ALLOC 20
+#define SNAP_ALLOC_GROW    10
 
 #define    DLL_EXPORT extern "C" __declspec(dllexport)
 
@@ -25,9 +42,16 @@ enum OpMode
     RECT            rWndInit    = {0,0,0,0};
     HWND            hWnd        = 0;
     int                style        = 0;
+	// Size of the window border
+	RECT border;
 
     // the current mode of operation
     OpMode            opMode;
+
+	snap_info_t x_snaps = { NULL, 0, 0 };
+	snap_info_t y_snaps = { NULL, 0, 0 };
+
+	unsigned MonitorSnapDistance = 40;
 #pragma data_seg ()
 
 #pragma comment(linker, "/section:SHAREDDATA,rws")
@@ -97,6 +121,216 @@ bool CheckModifierKeys()
 
     return ret_val;
 }
+
+void ReAllocSnap( snap_info_t* snap_info )
+{
+    if( snap_info->size == 0 )
+    {
+        snap_info->snap_list = (snap_t*)malloc( sizeof( snap_info_t ) * DEFAULT_SNAP_ALLOC );
+        snap_info->size = DEFAULT_SNAP_ALLOC;
+    }
+    else
+    {
+        snap_info->snap_list = (snap_t*)realloc( snap_info->snap_list, snap_info->size + ( sizeof( snap_info_t ) * SNAP_ALLOC_GROW ));
+        snap_info->size += SNAP_ALLOC_GROW;
+    }
+}
+
+BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon, LPARAM lParam )
+{
+
+    if( x_snaps.next+2 >= x_snaps.size )
+    {
+        ReAllocSnap( &x_snaps );
+    }
+    if( y_snaps.next+2 >= y_snaps.size )
+	{
+	ReAllocSnap( &y_snaps );
+	}
+
+#if 0
+	/* This uses raw monitor dimensions */
+	x_snaps.snap_list[ x_snaps.next ].snap = pRcMon->left;
+	x_snaps.snap_list[ x_snaps.next ].min = pRcMon->left - MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].max = pRcMon->left + MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].val_start = pRcMon->top;
+	x_snaps.snap_list[ x_snaps.next ].val_end = pRcMon->bottom;
+	x_snaps.next++;
+
+	x_snaps.snap_list[ x_snaps.next ].snap = pRcMon->right;
+	x_snaps.snap_list[ x_snaps.next ].min = pRcMon->right - MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].max = pRcMon->right + MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].val_start = pRcMon->top;
+	x_snaps.snap_list[ x_snaps.next ].val_end = pRcMon->bottom;
+	x_snaps.next++;
+
+	y_snaps.snap_list[ y_snaps.next ].snap = pRcMon->top;
+	y_snaps.snap_list[ y_snaps.next ].min = pRcMon->top - MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].max = pRcMon->top + MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].val_start = pRcMon->left;
+	y_snaps.snap_list[ y_snaps.next ].val_end = pRcMon->right;
+	y_snaps.next++;
+
+	y_snaps.snap_list[ y_snaps.next ].snap = pRcMon->bottom;
+	y_snaps.snap_list[ y_snaps.next ].min = pRcMon->bottom - MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].max = pRcMon->bottom + MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].val_start = pRcMon->left;
+	y_snaps.snap_list[ y_snaps.next ].val_end = pRcMon->right;
+	y_snaps.next++;
+#else
+	MONITORINFO monitorInfo;
+
+	/* We want to snap to the working area of the monitor, not the raw monitor */
+	monitorInfo.cbSize = sizeof( MONITORINFO );
+	GetMonitorInfo( hMon, &monitorInfo );
+
+	x_snaps.snap_list[ x_snaps.next ].snap = monitorInfo.rcWork.left;
+	x_snaps.snap_list[ x_snaps.next ].rect.left = monitorInfo.rcWork.left - MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].rect.right = monitorInfo.rcWork.left + MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].rect.top = monitorInfo.rcWork.top;
+	x_snaps.snap_list[ x_snaps.next ].rect.bottom = monitorInfo.rcWork.bottom;
+	x_snaps.next++;
+
+	x_snaps.snap_list[ x_snaps.next ].snap = monitorInfo.rcWork.right;
+	x_snaps.snap_list[ x_snaps.next ].rect.left = monitorInfo.rcWork.right - MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].rect.right = monitorInfo.rcWork.right + MonitorSnapDistance;
+	x_snaps.snap_list[ x_snaps.next ].rect.top = monitorInfo.rcWork.top;
+	x_snaps.snap_list[ x_snaps.next ].rect.bottom = monitorInfo.rcWork.bottom;
+	x_snaps.next++;
+
+	y_snaps.snap_list[ y_snaps.next ].snap = monitorInfo.rcWork.top;
+	y_snaps.snap_list[ y_snaps.next ].rect.left = monitorInfo.rcWork.left;
+	y_snaps.snap_list[ y_snaps.next ].rect.right = monitorInfo.rcWork.right;
+	y_snaps.snap_list[ y_snaps.next ].rect.top = monitorInfo.rcWork.top - MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].rect.bottom = monitorInfo.rcWork.top + MonitorSnapDistance;
+	y_snaps.next++;
+
+	y_snaps.snap_list[ y_snaps.next ].snap = monitorInfo.rcWork.bottom;
+	y_snaps.snap_list[ y_snaps.next ].rect.left = monitorInfo.rcWork.left;
+	y_snaps.snap_list[ y_snaps.next ].rect.right = monitorInfo.rcWork.right;
+	y_snaps.snap_list[ y_snaps.next ].rect.top = monitorInfo.rcWork.bottom - MonitorSnapDistance;
+	y_snaps.snap_list[ y_snaps.next ].rect.bottom = monitorInfo.rcWork.bottom + MonitorSnapDistance;
+	y_snaps.next++;
+
+#endif
+
+	return TRUE;
+}
+
+void UpdateSnaps()
+{
+	x_snaps.next = 0;
+	y_snaps.next = 0;
+	EnumDisplayMonitors( 0, 0, EnumDispProc, NULL );
+}
+
+void CalcWindowBorder()
+{
+	RECT rect, frame;
+	GetWindowRect( hWnd, &rect );
+	DwmGetWindowAttribute( hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, &frame, sizeof( RECT ) );
+
+	border.left = frame.left - rect.left;
+	border.top = frame.top - rect.top;
+	border.right = rect.right - frame.right;
+	border.bottom = rect.bottom - frame.bottom;
+}
+
+LONG YPosIncSnap( POINT ptRel )
+{
+	LONG retVal = ptRel.y;
+	LONG height = rWndInit.bottom - rWndInit.top;
+	POINT ptOther = ptRel;
+	ptOther.y += height;
+
+	for( unsigned i = 0; i < y_snaps.next; i++ )
+	{
+		if( PtInRect( &(y_snaps.snap_list[i].rect), ptRel ))
+		{
+			retVal = y_snaps.snap_list[ i ].snap - border.top;
+			break;
+		}
+
+		if( PtInRect( &( y_snaps.snap_list[ i ].rect ), ptOther ) )
+		{
+			retVal = y_snaps.snap_list[ i ].snap + border.bottom - height;
+			break;
+		}
+	}
+
+	return retVal;
+}
+
+LONG XWidthIncSnap( POINT ptRel, bool left )
+{
+	LONG retVal = ptRel.x;
+
+	for( unsigned i = 0; i < x_snaps.next; i++ )
+	{
+		if( PtInRect( &( x_snaps.snap_list[ i ].rect ), ptRel ) )
+		{
+			retVal = x_snaps.snap_list[ i ].snap;
+			if( left )
+			{
+				retVal -= border.left;
+			}
+			else
+			{
+				retVal += border.right;
+			}
+			break;
+		}
+	}
+	return retVal;
+}
+
+LONG YHeightIncSnap( POINT ptRel, bool top )
+{
+	LONG retVal = ptRel.y;
+
+	for( unsigned i = 0; i < y_snaps.next; i++ )
+	{
+		if( PtInRect( &( y_snaps.snap_list[ i ].rect ), ptRel ) )
+		{
+			retVal = y_snaps.snap_list[ i ].snap;
+			if( top )
+			{
+				retVal -= border.top;
+			}
+			else
+			{
+				retVal += border.bottom;
+			}
+			break;
+		}
+	}
+	return retVal;
+}
+
+LONG XPosIncSnap( POINT ptRel )
+{
+	LONG retVal = ptRel.x;
+	const LONG width = rWndInit.right - rWndInit.left;
+	POINT ptOther = ptRel;
+	ptOther.x += width;
+
+	for( unsigned i = 0; i < x_snaps.next; i++ )
+	{
+		if( PtInRect( &( x_snaps.snap_list[ i ].rect ), ptRel ) )
+		{
+			retVal = x_snaps.snap_list[ i ].snap - border.left;
+			break;
+		}
+		if( PtInRect( &( x_snaps.snap_list[ i ].rect ), ptOther ) )
+		{
+			retVal = x_snaps.snap_list[ i ].snap + border.right - width;
+			break;
+		}
+	}
+	return retVal;
+}
+
+#include "wchar.h"
 
 LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
 {
@@ -182,6 +416,9 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                     ::ScreenToClient(parent,(POINT*) &rWndInit.right);
                 }
 
+				UpdateSnaps();
+				CalcWindowBorder();
+
                 // we're getting serious - capture the mouse
                 SetCapture(hWnd);
 
@@ -212,7 +449,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                         {
                             // we're dragging a window - calc the relative movement and
                             // reposition the window
-                            POINT ptRel;
+                            POINT ptRel, ptRelOrig;
                             ::GetCursorPos(&ptRel);
 
                             ptRel.x    -= ptMouseInit.x;
@@ -221,6 +458,10 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                             ptRel.x += rWndInit.left;
                             ptRel.y += rWndInit.top;
 
+							ptRelOrig = ptRel;
+							ptRel.x = XPosIncSnap( ptRel );
+							ptRel.y = YPosIncSnap( ptRelOrig );
+
                             ::SetWindowPos(hWnd,0,ptRel.x,ptRel.y,0,0,
                                 SWP_ASYNCWINDOWPOS|SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOSIZE|SWP_NOZORDER);
 
@@ -228,7 +469,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                         }
                     case O_SIZE :
                         {
-                            // we're resizing a window - calc the relatvie movement
+                            // we're resizing a window - calc the relative movement
                             // and resize the window if it has a sizebox. disable
                             // this check and resize all windows :)
                             if (style & WS_SIZEBOX)
@@ -248,20 +489,50 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                                 {
                                     pos.x    = rWndInit.left;
                                     size.x    = dmousex + width;
+
+									POINT ptRel;
+									ptRel.x = pos.x + size.x;
+									ptRel.y = mouse.y;
+
+									size.x = XWidthIncSnap( ptRel, false ) - pos.x;
                                 } else 
                                 {
                                     pos.x    = rWndInit.left + dmousex;
                                     size.x    = width - dmousex;
-                                }
+
+									POINT ptRel;
+									ptRel.x = pos.x;
+									ptRel.y = mouse.y;
+									pos.x = XWidthIncSnap( ptRel, true );
+
+									/* Compensate the width to deal with the position snap */
+									size.x += ptRel.x - pos.x;
+								}
 
                                 if (ptMouseInit.y > rWndInit.top + (height/2))
                                 {
                                     pos.y    = rWndInit.top;
                                     size.y    = dmousey + height;
+
+									POINT ptRel;
+									ptRel.x = mouse.x;
+									ptRel.y = pos.y + size.y;
+
+									size.y = YHeightIncSnap( ptRel, false ) - pos.y;
+
                                 } else 
                                 {
                                     pos.y    = rWndInit.top + dmousey;
                                     size.y    = height - dmousey;
+
+									POINT ptRel;
+									ptRel.x = mouse.x;
+									ptRel.y = pos.y;
+
+									pos.y = YHeightIncSnap( ptRel, true );
+									/* Compensate the height to deal with the position snap */
+									size.y += ptRel.y - pos.y;
+
                                 }
 
                                 ::SetWindowPos(hWnd,0,pos.x,pos.y,size.x,size.y,
@@ -311,6 +582,11 @@ DLL_EXPORT    void RemoveMouseHook(void)
 DLL_EXPORT int GetInstanceCount()
 {
     return iInstanceCount;
+}
+
+DLL_EXPORT void SetScreenSnap(int val)
+{
+	MonitorSnapDistance = val;
 }
 
 DLL_EXPORT void SetModifiers( int count, int mods[] )

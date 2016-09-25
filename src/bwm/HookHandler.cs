@@ -19,17 +19,21 @@ namespace bwm
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SetModifiers(int count, int[] mods);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetScreenSnap(int val);
 
         private IntPtr mDll = IntPtr.Zero;
         private IntPtr mAddressOfSetMouseHook;
         private IntPtr mAddressOfRemoveMouseHook;
         private IntPtr mAddressOfGetInstanceCount;
         private IntPtr mAddressOfSetModifiers;
+        private IntPtr mAddressOfSetScreenSnap;
 
         SetMouseHook m_setMouseHook = null;
         RemoveMouseHook m_removeMouseHook = null;
         GetInstanceCount m_getInstanceCount = null;
         SetModifiers m_setModifiers = null;
+        SetScreenSnap m_setScreenSnap = null;
 
         public void Hook()
         {
@@ -48,6 +52,14 @@ namespace bwm
             if (mDll != IntPtr.Zero)
             {
                 m_setModifiers(count, mods);
+            }
+        }
+
+        public void SetScreenSnapMargin(int px)
+        {
+            if (mDll != IntPtr.Zero)
+            {
+                m_setScreenSnap(px);
             }
         }
 
@@ -85,8 +97,9 @@ namespace bwm
                     mAddressOfRemoveMouseHook = NativeMethods.GetProcAddress(mDll, "RemoveMouseHook");
                     mAddressOfGetInstanceCount = NativeMethods.GetProcAddress(mDll, "GetInstanceCount");
                     mAddressOfSetModifiers = NativeMethods.GetProcAddress(mDll, "SetModifiers");
+                    mAddressOfSetScreenSnap = NativeMethods.GetProcAddress(mDll, "SetScreenSnap");
 
-                    if ((mAddressOfSetMouseHook == IntPtr.Zero) || (mAddressOfRemoveMouseHook == IntPtr.Zero) || (mAddressOfGetInstanceCount == IntPtr.Zero) || (mAddressOfSetModifiers == IntPtr.Zero))
+                    if ((mAddressOfSetScreenSnap == IntPtr.Zero) || (mAddressOfSetMouseHook == IntPtr.Zero) || (mAddressOfRemoveMouseHook == IntPtr.Zero) || (mAddressOfGetInstanceCount == IntPtr.Zero) || (mAddressOfSetModifiers == IntPtr.Zero))
                     {
                         UnloadDLL();
                     }
@@ -96,6 +109,7 @@ namespace bwm
                         m_removeMouseHook = (RemoveMouseHook)Marshal.GetDelegateForFunctionPointer(mAddressOfRemoveMouseHook, typeof(RemoveMouseHook));
                         m_getInstanceCount = (GetInstanceCount)Marshal.GetDelegateForFunctionPointer(mAddressOfGetInstanceCount, typeof(GetInstanceCount));
                         m_setModifiers = (SetModifiers)Marshal.GetDelegateForFunctionPointer(mAddressOfSetModifiers, typeof(SetModifiers));
+                        m_setScreenSnap = (SetScreenSnap)Marshal.GetDelegateForFunctionPointer(mAddressOfSetScreenSnap, typeof(SetScreenSnap));
                         retVal = true;
                     }
                 }

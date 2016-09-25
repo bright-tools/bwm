@@ -28,7 +28,7 @@ namespace bwm
             this.Hide();
 
             mHook.Hook();
-            UpdateKeyboardModifiers();
+            UpdateAllSettings();
             setupNotifyIcon();
         }
 
@@ -108,6 +108,22 @@ namespace bwm
             return (n & 0xffff);
         }
 
+        private void UpdateAllSettings()
+        {
+            UpdateKeyboardModifiers();
+            UpdateScreenSnap();
+        }
+
+        private void UpdateScreenSnap()
+        {
+            int snapVal = Properties.Settings.Default.ScreenSnapMargin;
+            if(! Properties.Settings.Default.ScreenSnapEnabled)
+            {
+                snapVal = 0;
+            }
+            mHook.SetScreenSnapMargin(snapVal);
+        }
+
         private void UpdateKeyboardModifiers()
         {
             int count = 0;
@@ -142,7 +158,7 @@ namespace bwm
         {
             bwm.Properties.Settings.Default.Save();
 
-            UpdateKeyboardModifiers();
+            UpdateAllSettings();
         }
     }
 }

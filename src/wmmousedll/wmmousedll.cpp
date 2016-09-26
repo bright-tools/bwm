@@ -178,40 +178,69 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 		winRect.top += winBorder.top;
 		winRect.bottom -= winBorder.bottom;
 
+		/* These points represent the corners of the visible window.  We use these to check
+		   the (gross) visibility of the edges of the window so that we don't snap against
+		   items which are not visible to the user.
+		   
+		   This does not catch the case where the corners are obscured, but part of the edge 
+		   is still visible).
+		*/
+		const POINT topLeft = { winRect.left, winRect.top };
+		const POINT bottomLeft = { winRect.left, winRect.bottom };
+		const POINT topRight = { winRect.right, winRect.top };
+		const POINT bottomRight = { winRect.right, winRect.bottom };
+
 		if( ( x_snaps.next + 2 ) >= x_snaps.size )
 		{
-			x_snaps.snap_list[ x_snaps.next ].snap = winRect.left;
-			x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
-			x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.left + WindowSnapDistance;
-			x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
-			x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
-			x_snaps.next++;
+			/* Check that the top-most and bottom-most point of the left edge of the window are visible */
+			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( bottomLeft ) == p_hWnd ) )
+			{
+				x_snaps.snap_list[ x_snaps.next ].snap = winRect.left;
+				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.left + WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
+				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
 
-			x_snaps.snap_list[ x_snaps.next ].snap = winRect.right;
-			x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.right - WindowSnapDistance;
-			x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.right + WindowSnapDistance;
-			x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
-			x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
-			x_snaps.next++;
+				x_snaps.next++;
+			}
+
+			/* Check that the top-most and bottom-most point of the right edge of the window are visible */
+			if( ( WindowFromPoint( topRight ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) )
+			{
+				x_snaps.snap_list[ x_snaps.next ].snap = winRect.right;
+				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.right - WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.right + WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
+				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
+				x_snaps.next++;
+			}
 		}
 
 		if( ( y_snaps.next + 2 ) >= y_snaps.size )
 		{
-			y_snaps.snap_list[ y_snaps.next ].snap = winRect.top;
-			y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
-			y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
-			y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.top - WindowSnapDistance;
-			y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.top + WindowSnapDistance;
-			y_snaps.next++;
+			/* Check that the left-most and right-most point of the top edge of the window are visible */
+			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( topRight ) == p_hWnd ) )
+			{
+				y_snaps.snap_list[ y_snaps.next ].snap = winRect.top;
+				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
+				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
+				y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.top - WindowSnapDistance;
+				y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.top + WindowSnapDistance;
+				y_snaps.next++;
+			}
 
-			y_snaps.snap_list[ y_snaps.next ].snap = winRect.bottom;
-			y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
-			y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
-			y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.bottom - WindowSnapDistance;
-			y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.bottom + WindowSnapDistance;
-			y_snaps.next++;
+			/* Check that the left-most and right-most point of the bottom edge of the window are visible */
+			if( ( WindowFromPoint( bottomLeft ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) )
+			{
+				y_snaps.snap_list[ y_snaps.next ].snap = winRect.bottom;
+				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
+				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
+				y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.bottom - WindowSnapDistance;
+				y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.bottom + WindowSnapDistance;
+				y_snaps.next++;
+			}
 		}
-
+		
 
 #if 0
 		wchar_t local_str[ 2048 ] = L"";

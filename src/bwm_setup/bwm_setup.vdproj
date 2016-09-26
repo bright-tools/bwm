@@ -220,7 +220,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Bright Window Manager"
         "ProductCode" = "8:{C6FC3733-AC3C-4097-9E85-124AC5DAF5D7}"
-        "PackageCode" = "8:{C0A3A614-546C-4A9A-BB27-9980709D37AE}"
+        "PackageCode" = "8:{C28B901E-CBF0-4BB3-87EE-74211E357D93}"
         "UpgradeCode" = "8:{E872ED19-D7CB-4C63-A2A8-CD714D341D6E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -108,11 +109,26 @@ namespace bwm
             return (n & 0xffff);
         }
 
+        private void UpdateRunAtStartup()
+        {
+            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+
+            if (Properties.Settings.Default.RunAtStartup)
+            {
+                rkApp.SetValue("BWM", "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"");
+            }
+            else
+            {
+                rkApp.DeleteValue("BWM", false);
+            }
+        }
+
         private void UpdateAllSettings()
         {
             UpdateKeyboardModifiers();
             UpdateScreenSnap();
             UpdateWindowSnap();
+            UpdateRunAtStartup();
         }
 
         private void UpdateScreenSnap()

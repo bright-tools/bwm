@@ -46,6 +46,7 @@
                 </Grid>
             </Canvas>
         </GroupBox>
+        <CheckBox x:Name="checkBox" Content="Run at Startup" IsChecked="{local:SettingBinding RunAtStartup}" HorizontalAlignment="Left" Margin="10,109,0,0" Grid.Row="1" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

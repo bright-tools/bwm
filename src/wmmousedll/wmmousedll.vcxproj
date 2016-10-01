@@ -85,10 +85,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MouseHistory.cpp" />
+    <ClCompile Include="Snap.cpp" />
+    <ClCompile Include="WinUtils.cpp" />
     <ClCompile Include="wmmousedll.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MouseHistory.hpp" />
+    <ClInclude Include="Snap.hpp" />
+    <ClInclude Include="WinUtils.hpp" />
     <ClInclude Include="wmmousedll.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -130,5 +130,53 @@ namespace bwm.Properties {
                 this["RunAtStartup"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LeftButton")]
+        public global::bwm.MouseButton MoveWindowButton {
+            get {
+                return ((global::bwm.MouseButton)(this["MoveWindowButton"]));
+            }
+            set {
+                this["MoveWindowButton"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("RightButton")]
+        public global::bwm.MouseButton ResizeWindowButton {
+            get {
+                return ((global::bwm.MouseButton)(this["ResizeWindowButton"]));
+            }
+            set {
+                this["ResizeWindowButton"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LeftButton")]
+        public global::bwm.MouseButton MaximiseWindowButton {
+            get {
+                return ((global::bwm.MouseButton)(this["MaximiseWindowButton"]));
+            }
+            set {
+                this["MaximiseWindowButton"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("RightButton")]
+        public global::bwm.MouseButton MinimiseWindowButton {
+            get {
+                return ((global::bwm.MouseButton)(this["MinimiseWindowButton"]));
+            }
+            set {
+                this["MinimiseWindowButton"] = value;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,17 @@ using System.Windows.Shapes;
 
 namespace bwm
 {
+    [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+    public enum MouseButton
+    {
+        [Description("Not Enabled")]
+        None = 0,
+        [Description("Left Mouse Button")]
+        LeftButton = 1,
+        [Description("Right Mouse Button")]
+        RightButton = 2
+    };
+
     /// <summary>
     /// Interaction logic for ConfigWindow.xaml
     /// </summary>
@@ -31,6 +43,35 @@ namespace bwm
             mHook.Hook();
             UpdateAllSettings();
             setupNotifyIcon();
+
+            Properties.Settings.Default.PropertyChanged += SettingsChanged;
+        }
+
+        private void CheckEquality( MouseButton val1, MouseButton val2, String err, ComboBox ctrl)
+        {
+            if (val1.Equals(val2))
+            {
+                ValidationError validationError =
+                    new ValidationError(new ExceptionValidationRule(), ctrl.GetBindingExpression(ComboBox.SelectedItemProperty));
+
+                validationError.ErrorContent = err;
+
+                Validation.MarkInvalid(ctrl.GetBindingExpression(ComboBox.SelectedItemProperty),
+                                       validationError);
+            }
+            else
+            {
+                Validation.ClearInvalid(ctrl.GetBindingExpression(ComboBox.SelectedItemProperty));
+            }
+
+        }
+
+        private void SettingsChanged(object sender, PropertyChangedEventArgs e)
+        {
+            CheckEquality(Properties.Settings.Default.ResizeWindowButton, Properties.Settings.Default.MoveWindowButton,
+                           "Resize & Move must use different buttons", moveWindowComboBox);
+            CheckEquality(Properties.Settings.Default.MinimiseWindowButton, Properties.Settings.Default.MaximiseWindowButton,
+                            "Maximise & Minimise must use different buttons", maximiseWindowComboBox);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -123,9 +164,18 @@ namespace bwm
             }
         }
 
+        private void UpdateMouseBindings()
+        {
+            mHook.SetWindowResizeMouseButton((int)Properties.Settings.Default.ResizeWindowButton);
+            mHook.SetWindowMoveMouseButton((int)Properties.Settings.Default.MoveWindowButton);
+            mHook.SetWindowMinimiseMouseButton((int)Properties.Settings.Default.MinimiseWindowButton);
+            mHook.SetWindowMaximiseMouseButton((int)Properties.Settings.Default.MaximiseWindowButton);
+        }
+
         private void UpdateAllSettings()
         {
             UpdateKeyboardModifiers();
+            UpdateMouseBindings();
             UpdateScreenSnap();
             UpdateWindowSnap();
             UpdateRunAtStartup();

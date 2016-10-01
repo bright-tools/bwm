@@ -29,5 +29,17 @@
     <Setting Name="RunAtStartup" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="MoveWindowButton" Type="bwm.MouseButton" Scope="User">
+      <Value Profile="(Default)">LeftButton</Value>
+    </Setting>
+    <Setting Name="ResizeWindowButton" Type="bwm.MouseButton" Scope="User">
+      <Value Profile="(Default)">RightButton</Value>
+    </Setting>
+    <Setting Name="MaximiseWindowButton" Type="bwm.MouseButton" Scope="User">
+      <Value Profile="(Default)">LeftButton</Value>
+    </Setting>
+    <Setting Name="MinimiseWindowButton" Type="bwm.MouseButton" Scope="User">
+      <Value Profile="(Default)">RightButton</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

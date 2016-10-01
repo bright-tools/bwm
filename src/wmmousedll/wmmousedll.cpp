@@ -1,6 +1,9 @@
 #include "wmmousedll.h"
+#include "MouseHistory.hpp"
 #include <Dwmapi.h>
 #include <windows.h>
+
+#include "wchar.h"
 
 #define MAX_NUM_MODIFIER_KEYS 10U
 #define MAX_SNAPS 200U
@@ -15,7 +18,11 @@ enum OpMode
 
 typedef struct
 {
+	/* A rectangle representing the edge to snap to */
 	RECT rect;
+
+	/* The co-ordinate to snap to when snapping 
+	   (will either be an X or Y co-ordinate depending on the type of snap) */
 	LONG snap;
 } snap_t;
 
@@ -25,9 +32,6 @@ typedef struct
 	unsigned size;
 	unsigned next;
 } snap_info_t;
-
-#define DEFAULT_SNAP_ALLOC 200
-#define SNAP_ALLOC_GROW    10
 
 #define    DLL_EXPORT extern "C" __declspec(dllexport)
 
@@ -59,6 +63,13 @@ typedef struct
 	HINSTANCE        hInst = 0;
 	DWORD mod_count = 2;
 	int modifiers[ MAX_NUM_MODIFIER_KEYS ] = { VK_MENU, VK_CONTROL };
+
+	MouseHistory mouseHistory;
+
+	enum MouseButton MButtonMove = M_LEFT;
+	enum MouseButton MButtonResize = M_RIGHT;
+	enum MouseButton MButtonMinimise = M_LEFT;
+	enum MouseButton MButtonMaximise = M_RIGHT;
 
 #pragma data_seg ()
 
@@ -125,8 +136,6 @@ bool CheckModifierKeys()
 
     return ret_val;
 }
-
-#include "wchar.h"
 
 /* Thanks to http://stackoverflow.com/questions/7277366/why-does-enumwindows-return-more-windows-than-i-expected */
 BOOL IsAltTabWindow( HWND hwnd )
@@ -345,10 +354,14 @@ void UpdateSnaps()
 {
 	x_snaps.next = 0;
 	y_snaps.next = 0;
+
+	/* Monitor edge snapping is disabled when the distance is set to zero */
 	if( MonitorSnapDistance > 0 )
 	{
 		EnumDisplayMonitors( 0, 0, EnumDispProc, NULL );
 	}
+
+	/* Window edge snapping is disabled when the distance is set to zero */
 	if( WindowSnapDistance > 0 )
 	{
 		EnumWindows( EnumWindowsProc, NULL );
@@ -451,6 +464,85 @@ LONG XPosIncSnap( POINT ptRel, LONG width, LONG height, bool left, bool right )
 	return retVal;
 }
 
+
+HWND GetTopLevelWindow( HWND p_hWnd )
+{
+	// walk up the window hierarchie to find the corresponding
+	// top level window. commment this block and enjoy resizing
+	// all sorts of widgets :)
+	while( p_hWnd != 0 )
+	{
+		style = ::GetWindowLong( p_hWnd, GWL_STYLE );
+		const int x = style & ( WS_POPUP | WS_CHILD );
+
+		if( ( x == WS_OVERLAPPED ) ||
+			( x == WS_POPUP )
+			) break;
+
+		// we also want to manipulate mdi childs that
+		// aren't maximized
+		if(
+			( !( style & WS_MAXIMIZE ) ) &&
+			( ::GetWindowLong( p_hWnd, GWL_EXSTYLE ) & WS_EX_MDICHILD )
+			) break;
+
+		p_hWnd = ::GetParent( p_hWnd );
+	}
+	return p_hWnd;
+}
+
+bool HandleDoubleClick( const enum MouseButton thisButton )
+{
+	bool handled = false;
+	WINDOWPLACEMENT wndpl;
+	wndpl.length = sizeof( WINDOWPLACEMENT );
+	::GetWindowPlacement( hWnd, &wndpl );
+	if( thisButton == MButtonMaximise )
+	{
+		if( wndpl.showCmd == SW_SHOWMAXIMIZED )
+		{
+			wndpl.showCmd = SW_SHOWNORMAL;
+		}
+		else
+		{
+			wndpl.showCmd = SW_SHOWMAXIMIZED;
+		}
+		handled = true;
+	}
+	else if( thisButton == MButtonMinimise )
+	{
+		wndpl.showCmd = SW_MINIMIZE;
+		handled = true;
+	}
+
+	if( handled )
+	{
+		::SetWindowPlacement( hWnd, &wndpl );
+	}
+
+	return handled;
+}
+
+enum MouseButton MouseButtonFromWPARAM( WPARAM wParam )
+{
+	enum MouseButton thisButton;
+	switch( wParam )
+	{
+		case WM_RBUTTONDBLCLK:
+		case WM_RBUTTONDOWN:
+			thisButton = M_RIGHT;
+			break;
+		case WM_LBUTTONDBLCLK:
+		case WM_LBUTTONDOWN:
+			thisButton = M_LEFT;
+			break;
+		default:
+			thisButton = M_NONE;
+			break;
+	}
+	return thisButton;
+}
+
 LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
 {
     if (nCode != HC_ACTION)
@@ -458,65 +550,70 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
         return CallNextHookEx(hhook, nCode, wParam, lParam);
     }
 
-    MOUSEHOOKSTRUCT &mhs    = *(MOUSEHOOKSTRUCT*)wParam;
+	MOUSEHOOKSTRUCT &mhs = *(MOUSEHOOKSTRUCT*)lParam;
 
     switch(wParam)
     {
+		case WM_RBUTTONDBLCLK:
+		case WM_LBUTTONDBLCLK:
         case WM_RBUTTONDOWN :
         case WM_LBUTTONDOWN :
-            {
-                bool modifierState = CheckModifierKeys();
-                if (! modifierState)
-                {
-                    return CallNextHookEx(hhook, nCode, wParam, lParam);
-                }
+			{
+				bool modifierState = CheckModifierKeys();
+				if( !modifierState )
+				{
+					return CallNextHookEx( hhook, nCode, wParam, lParam );
+				}
 
-                // remember where the user started dragging the mouse
-                ::GetCursorPos(&ptMouseInit);
-                hWnd = ::WindowFromPoint(ptMouseInit);
+				enum MouseButton thisButton = MouseButtonFromWPARAM( wParam );
+				if( thisButton == M_NONE )
+				{
+					opMode = O_NONE;
+					return CallNextHookEx( hhook, nCode, wParam, lParam );
+				}
 
-                // walk up the window hierarchie to find the corresponding
-                // top level window. commment this block and enjoy resizing
-                // all sorts of widgets :)
-                while (hWnd != 0)
-                {
-                    style       = ::GetWindowLong(hWnd,GWL_STYLE);
-                    const int x = style & (WS_POPUP|WS_CHILD);
+				// remember where the user started dragging the mouse
+				::GetCursorPos( &ptMouseInit );
+				hWnd = ::WindowFromPoint( ptMouseInit );
+				DWORD winStyle = ::GetClassLong( hWnd, GCL_STYLE );
 
-                    if ( (x == WS_OVERLAPPED) ||
-                         (x == WS_POPUP)
-                        ) break;
+				hWnd = GetTopLevelWindow( hWnd );
 
-                    // we also want to manipulate mdi childs that
-                    // aren't maximized
-                    if (
-                            (! (style & WS_MAXIMIZE)) &&
-                            (::GetWindowLong(hWnd,GWL_EXSTYLE) & WS_EX_MDICHILD)
-                        ) break;
+				/* If the window style has CS_DBLCLKS then we'll receive WM_LBUTTONDBLCLK and WM_RBUTTONDBLCLK messages
+				   If not, we have to monitor for double clicks manually */
+				if( (( winStyle & CS_DBLCLKS ) && (( wParam == WM_LBUTTONDBLCLK ) || (wParam == WM_RBUTTONDBLCLK ))) || 
+					mouseHistory.IsDoubleClick( thisButton, mhs ) )
+				{
+					if( HandleDoubleClick( thisButton ) )
+					{
+						return 1;
+					}
+					else
+					{
+						return CallNextHookEx( hhook, nCode, wParam, lParam );
+					}
+				}
 
-                    hWnd = ::GetParent(hWnd);
-                }
+				if( IgnoreWindow() )
+				{
+					opMode = O_NONE;
+					return CallNextHookEx( hhook, nCode, wParam, lParam );
+				}
 
-                if (IgnoreWindow())
-                {
-                    opMode = O_NONE;
-                    return CallNextHookEx(hhook, nCode, wParam, lParam);
-                }
-
-                // check if the modifier key is pressed while a mouse button is pressed
-                // and switch to the appropriate mode
-                switch (wParam)
-                {
-                    case WM_RBUTTONDOWN :
-                        opMode = O_SIZE;
-                        break;
-                    case WM_LBUTTONDOWN :
-                        opMode = O_MOVE;
-                        break;
-                    default :
-                        opMode = O_NONE;
-                        return CallNextHookEx(hhook, nCode, wParam, lParam);
-                }
+				// check if the modifier key is pressed while a mouse button is pressed
+				// and switch to the appropriate mode
+				if( MButtonMove == thisButton )
+				{
+					opMode = O_MOVE;
+				}
+				else if( MButtonResize == thisButton )
+				{
+					opMode = O_SIZE;
+				}
+				else
+				{
+					hWnd = 0;
+				}
 
                 if (hWnd == 0)
                 {
@@ -557,8 +654,9 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                     // while dragging or sizing a window
                     if (! modifierState)
                     {
+						opMode = O_NONE;
                         ReleaseCapture();
-                        return CallNextHookEx(hhook, nCode, wParam, lParam);
+						return CallNextHookEx( hhook, nCode, wParam, lParam );
                     }
                 }
 
@@ -731,6 +829,26 @@ DLL_EXPORT void SetScreenSnap(int val)
 DLL_EXPORT void SetWindowSnap( int val )
 {
 	WindowSnapDistance = val;
+}
+
+DLL_EXPORT void SetMoveMButton( int val )
+{
+	MButtonMove = (enum MouseButton)val;
+}
+
+DLL_EXPORT void SetResizeMButton( int val )
+{
+	MButtonResize = ( enum MouseButton )val;
+}
+
+DLL_EXPORT void SetMinimiseMButton( int val )
+{
+	MButtonMinimise = ( enum MouseButton )val;
+}
+
+DLL_EXPORT void SetMaximiseMButton( int val )
+{
+	MButtonMaximise = ( enum MouseButton )val;
 }
 
 DLL_EXPORT void SetModifiers( int count, int mods[] )

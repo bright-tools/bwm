@@ -66,14 +66,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EnumBindingSourceExtension.cs" />
+    <Compile Include="EnumDescriptionTypeConverter.cs" />
     <Compile Include="SettingBindingExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ContextMenu.xaml.cs">
-      <DependentUpon>ContextMenu.xaml</DependentUpon>
     </Compile>
     <Compile Include="HookHandler.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -105,10 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="ConfigWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ContextMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

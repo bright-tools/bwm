@@ -25,6 +25,18 @@ namespace bwm
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SetWindowSnap(int val);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetResizeMButton(int val);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetMoveMButton(int val);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetMaximiseMButton(int val);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetMinimiseMButton(int val);
+
         private IntPtr mDll = IntPtr.Zero;
         private IntPtr mAddressOfSetMouseHook;
         private IntPtr mAddressOfRemoveMouseHook;
@@ -32,6 +44,10 @@ namespace bwm
         private IntPtr mAddressOfSetModifiers;
         private IntPtr mAddressOfSetScreenSnap;
         private IntPtr mAddressOfSetWindowSnap;
+        private IntPtr mAddressOfSetMoveMButton;
+        private IntPtr mAddressOfSetResizeMButton;
+        private IntPtr mAddressOfSetMaximiseMButton;
+        private IntPtr mAddressOfSetMinimiseMButton;
 
         SetMouseHook m_setMouseHook = null;
         RemoveMouseHook m_removeMouseHook = null;
@@ -39,6 +55,10 @@ namespace bwm
         SetModifiers m_setModifiers = null;
         SetScreenSnap m_setScreenSnap = null;
         SetWindowSnap m_setWindowSnap = null;
+        SetMaximiseMButton m_setMaximiseMButton = null;
+        SetMinimiseMButton m_setMinimiseMButton = null;
+        SetResizeMButton m_setResizeMButton = null;
+        SetMoveMButton m_setMoveMButton = null;
 
         public void Hook()
         {
@@ -76,6 +96,38 @@ namespace bwm
             }
         }
 
+        public void SetWindowMoveMouseButton(int px)
+        {
+            if (mDll != IntPtr.Zero)
+            {
+                m_setMoveMButton(px);
+            }
+        }
+
+        public void SetWindowResizeMouseButton(int px)
+        {
+            if (mDll != IntPtr.Zero)
+            {
+                m_setResizeMButton(px);
+            }
+        }
+
+        public void SetWindowMaximiseMouseButton(int px)
+        {
+            if (mDll != IntPtr.Zero)
+            {
+                m_setMaximiseMButton(px);
+            }
+        }
+
+        public void SetWindowMinimiseMouseButton(int px)
+        {
+            if (mDll != IntPtr.Zero)
+            {
+                m_setMinimiseMButton(px);
+            }
+        }
+
         public void UnHook()
         {
             UnloadDLL();
@@ -96,6 +148,48 @@ namespace bwm
             return new FileInfo(Uri.UnescapeDataString(location.AbsolutePath)).Directory;
         }
 
+        protected void GetProcedureAddresses()
+        {
+            mAddressOfSetMouseHook = NativeMethods.GetProcAddress(mDll, "SetMouseHook");
+            mAddressOfRemoveMouseHook = NativeMethods.GetProcAddress(mDll, "RemoveMouseHook");
+            mAddressOfGetInstanceCount = NativeMethods.GetProcAddress(mDll, "GetInstanceCount");
+            mAddressOfSetModifiers = NativeMethods.GetProcAddress(mDll, "SetModifiers");
+            mAddressOfSetScreenSnap = NativeMethods.GetProcAddress(mDll, "SetScreenSnap");
+            mAddressOfSetWindowSnap = NativeMethods.GetProcAddress(mDll, "SetWindowSnap");
+            mAddressOfSetMoveMButton = NativeMethods.GetProcAddress(mDll, "SetMoveMButton");
+            mAddressOfSetResizeMButton = NativeMethods.GetProcAddress(mDll, "SetResizeMButton");
+            mAddressOfSetMaximiseMButton = NativeMethods.GetProcAddress(mDll, "SetMaximiseMButton");
+            mAddressOfSetMinimiseMButton = NativeMethods.GetProcAddress(mDll, "SetMinimiseMButton");
+        }
+
+        protected bool CheckProcedureAddresses()
+        {
+            return (mAddressOfSetWindowSnap == IntPtr.Zero) ||
+                   (mAddressOfSetScreenSnap == IntPtr.Zero) ||
+                   (mAddressOfSetMouseHook == IntPtr.Zero) ||
+                   (mAddressOfRemoveMouseHook == IntPtr.Zero) ||
+                   (mAddressOfGetInstanceCount == IntPtr.Zero) ||
+                   (mAddressOfSetModifiers == IntPtr.Zero) ||
+                   (mAddressOfSetMoveMButton == IntPtr.Zero) ||
+                   (mAddressOfSetResizeMButton == IntPtr.Zero) ||
+                   (mAddressOfSetMaximiseMButton == IntPtr.Zero) ||
+                   (mAddressOfSetMinimiseMButton == IntPtr.Zero);
+        }
+
+        protected void GetHooks()
+        {
+            m_setMouseHook = (SetMouseHook)Marshal.GetDelegateForFunctionPointer(mAddressOfSetMouseHook, typeof(SetMouseHook));
+            m_removeMouseHook = (RemoveMouseHook)Marshal.GetDelegateForFunctionPointer(mAddressOfRemoveMouseHook, typeof(RemoveMouseHook));
+            m_getInstanceCount = (GetInstanceCount)Marshal.GetDelegateForFunctionPointer(mAddressOfGetInstanceCount, typeof(GetInstanceCount));
+            m_setModifiers = (SetModifiers)Marshal.GetDelegateForFunctionPointer(mAddressOfSetModifiers, typeof(SetModifiers));
+            m_setScreenSnap = (SetScreenSnap)Marshal.GetDelegateForFunctionPointer(mAddressOfSetScreenSnap, typeof(SetScreenSnap));
+            m_setWindowSnap = (SetWindowSnap)Marshal.GetDelegateForFunctionPointer(mAddressOfSetWindowSnap, typeof(SetWindowSnap));
+            m_setMoveMButton = (SetMoveMButton)Marshal.GetDelegateForFunctionPointer(mAddressOfSetMoveMButton, typeof(SetMoveMButton));
+            m_setResizeMButton = (SetResizeMButton)Marshal.GetDelegateForFunctionPointer(mAddressOfSetResizeMButton, typeof(SetResizeMButton));
+            m_setMaximiseMButton = (SetMaximiseMButton)Marshal.GetDelegateForFunctionPointer(mAddressOfSetMaximiseMButton, typeof(SetMaximiseMButton));
+            m_setMinimiseMButton = (SetMinimiseMButton)Marshal.GetDelegateForFunctionPointer(mAddressOfSetMinimiseMButton, typeof(SetMinimiseMButton));
+        }
+
         bool LoadDLL()
         {
             bool retVal = false;
@@ -106,25 +200,15 @@ namespace bwm
 
                 if (mDll != IntPtr.Zero)
                 {
-                    mAddressOfSetMouseHook = NativeMethods.GetProcAddress(mDll, "SetMouseHook");
-                    mAddressOfRemoveMouseHook = NativeMethods.GetProcAddress(mDll, "RemoveMouseHook");
-                    mAddressOfGetInstanceCount = NativeMethods.GetProcAddress(mDll, "GetInstanceCount");
-                    mAddressOfSetModifiers = NativeMethods.GetProcAddress(mDll, "SetModifiers");
-                    mAddressOfSetScreenSnap = NativeMethods.GetProcAddress(mDll, "SetScreenSnap");
-                    mAddressOfSetWindowSnap = NativeMethods.GetProcAddress(mDll, "SetWindowSnap");
+                    GetProcedureAddresses();
 
-                    if ((mAddressOfSetWindowSnap == IntPtr.Zero) || (mAddressOfSetScreenSnap == IntPtr.Zero) || (mAddressOfSetMouseHook == IntPtr.Zero) || (mAddressOfRemoveMouseHook == IntPtr.Zero) || (mAddressOfGetInstanceCount == IntPtr.Zero) || (mAddressOfSetModifiers == IntPtr.Zero))
+                    if ( CheckProcedureAddresses() )
                     {
                         UnloadDLL();
                     }
                     else
                     {
-                        m_setMouseHook = (SetMouseHook)Marshal.GetDelegateForFunctionPointer(mAddressOfSetMouseHook, typeof(SetMouseHook));
-                        m_removeMouseHook = (RemoveMouseHook)Marshal.GetDelegateForFunctionPointer(mAddressOfRemoveMouseHook, typeof(RemoveMouseHook));
-                        m_getInstanceCount = (GetInstanceCount)Marshal.GetDelegateForFunctionPointer(mAddressOfGetInstanceCount, typeof(GetInstanceCount));
-                        m_setModifiers = (SetModifiers)Marshal.GetDelegateForFunctionPointer(mAddressOfSetModifiers, typeof(SetModifiers));
-                        m_setScreenSnap = (SetScreenSnap)Marshal.GetDelegateForFunctionPointer(mAddressOfSetScreenSnap, typeof(SetScreenSnap));
-                        m_setWindowSnap = (SetWindowSnap)Marshal.GetDelegateForFunctionPointer(mAddressOfSetWindowSnap, typeof(SetWindowSnap));
+                        GetHooks();
                         retVal = true;
                     }
                 }

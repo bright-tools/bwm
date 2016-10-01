@@ -1,15 +1,20 @@
-bwm
-===
+Bright Window Manager (BWM)
+===========================
 
-Window manager (WM) extensions for Windows
-  * Left-click and drag with ALT held down to move a window
-  * Right-click and drag with ALT held down to resize a window
+Window manager (WM) extensions for Windows:
+  * Left-click and drag with keyboard modifiers held down to move a window
+  * Right-click and drag with keyboard modifiers held down to resize a window
+  * Double-left click with keyboard modifiers held down to maximise/restore a window
+  * Double-right click with keyboard modifiers held down to minimise a window
+  * Automatic "snapping" to the edges of the screen and other windows when moving or resizing
 
-To be added:
-  * Allow user to change the meta key (currently coded to ALT)
-  * Focus-based functionality
+Keyboard modifers can be configured by selecting "Options" after right-clicking
+on the notification icon in the task area.
 
-This project is based on Markus Rollmann's project on CodeProject [1] - full
+History
+=======
+
+This project was initially based on Markus Rollmann's project on CodeProject [1] - full
 credit to Markus for his work.
 
 References

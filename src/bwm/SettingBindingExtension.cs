@@ -13,6 +13,9 @@ namespace bwm
             : base(path)
         {
             Initialize();
+
+            this.ValidatesOnDataErrors = true;
+            this.NotifyOnValidationError = true;
         }
 
         private void Initialize()

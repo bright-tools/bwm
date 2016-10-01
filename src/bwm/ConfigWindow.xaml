@@ -3,25 +3,61 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:bwm"
         mc:Ignorable="d"
-        Title="BWM Settings" Height="222.667" Width="276" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="BWM Settings" Height="250.667" Width="635.267" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
+
     <Grid>
+        <Grid.Resources>
+            <Style TargetType="{x:Type Control}">
+                <Setter Property="Margin" Value="4 3" />
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="true">
+                        <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={RelativeSource self}, 
+                                            Path=(Validation.Errors)[0].ErrorContent}" />
+                        <Setter Property="Foreground" Value="Red" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type Control}}"/>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type Control}}"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="26*"/>
             <RowDefinition Height="243*"/>
         </Grid.RowDefinitions>
-        <GroupBox x:Name="groupBox" Header="Keyboard Modifier" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="98" Width="123" Grid.RowSpan="2">
-            <StackPanel Margin="0,2,9,-4">
-                <CheckBox x:Name="checkBox_Copy1" Content="CTRL" IsChecked="{local:SettingBinding ModifierCtrl}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" />
-                <CheckBox x:Name="checkBox_Copy"  Content="ALT" IsChecked="{local:SettingBinding ModifierAlt}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top"/>
-                <CheckBox x:Name="checkBox_Copy2" Content="Win" IsChecked="{local:SettingBinding ModifierWin}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top"/>
-                <CheckBox x:Name="checkBox_Copy3" Content="Shift" IsChecked="{local:SettingBinding ModifierShift}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top"/>
-            </StackPanel>
+        <GroupBox x:Name="groupBox" Header="Keyboard Modifier" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="117" Width="115" Grid.RowSpan="2">
+            <Canvas Margin="4,4,4,4">
+                <CheckBox x:Name="checkBox_Copy1" Content="CTRL" IsChecked="{local:SettingBinding ModifierCtrl}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Canvas.Top="6" />
+                <CheckBox x:Name="checkBox_Copy"  Content="ALT" IsChecked="{local:SettingBinding ModifierAlt}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Canvas.Top="25"/>
+                <CheckBox x:Name="checkBox_Copy2" Content="Win" IsChecked="{local:SettingBinding ModifierWin}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Canvas.Top="42"/>
+                <CheckBox x:Name="checkBox_Copy3" Content="Shift" IsChecked="{local:SettingBinding ModifierShift}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Canvas.Top="61"/>
+            </Canvas>
         </GroupBox>
-        <Button x:Name="button" Content="Apply" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="button_Click" RenderTransformOrigin="0.182,-0.967"/>
-        <GroupBox x:Name="groupBox1" Header="Screen Edge Snap" HorizontalAlignment="Left" Margin="138,10,0,0" VerticalAlignment="Top" Height="68" Grid.RowSpan="2">
-            <Canvas HorizontalAlignment="Left" Height="51" Margin="0,0,-12,-5" VerticalAlignment="Top" Width="106">
+        <Button x:Name="applyButton" Content="Apply" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="button_Click" RenderTransformOrigin="0.182,-0.967" IsDefault="True">
+            <Button.Style>
+                <Style TargetType="Button">
+                <Setter Property="IsEnabled" Value="False"/>
+                <Style.Triggers>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=moveWindowComboBox}" Value="False"/>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=resizeWindowComboBox}" Value="False"/>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=maximiseWindowComboBox}" Value="False"/>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=minimiseWindowComboBox}" Value="False"/>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=screenEdgeSnapPx}" Value="False"/>
+                            <Condition Binding="{Binding Path=(Validation.HasError), ElementName=windowEdgeSnapPx}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                        <Setter Property="IsEnabled" Value="True"/>
+                    </MultiDataTrigger>
+                </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <GroupBox x:Name="groupBox1" Header="Screen Edge Snap" HorizontalAlignment="Left" Margin="501,10,0,0" VerticalAlignment="Top" Height="78" Grid.RowSpan="2" Width="124">
+            <Canvas HorizontalAlignment="Left" Height="51" Margin="4,4,4,4" VerticalAlignment="Top" Width="106">
                 <Grid HorizontalAlignment="Left" Height="51" VerticalAlignment="Top" Width="100">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="29*"/>
@@ -29,12 +65,12 @@
                     </Grid.ColumnDefinitions>
                     <Label x:Name="label" Content="px" Margin="1.667,18,16,7" RenderTransformOrigin="0.31,1.077" Grid.Column="1"/>
                     <CheckBox x:Name="checkBox_Copy4" Content="Enabled" IsChecked="{local:SettingBinding ScreenSnapEnabled}" Margin="0,6,-6,16" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="textBox" TextWrapping="Wrap" IsEnabled="{local:SettingBinding ScreenSnapEnabled}" Text="{local:SettingBinding ScreenSnapMargin}" Margin="0,22,40,6" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="screenEdgeSnapPx" TextWrapping="Wrap" IsEnabled="{local:SettingBinding ScreenSnapEnabled}" Text="{local:SettingBinding ScreenSnapMargin}" Margin="0,22,40,6" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </GroupBox>
-        <GroupBox x:Name="groupBox2" Header="Window Edge Snap" HorizontalAlignment="Left" Margin="138,63,0,0" VerticalAlignment="Top" Height="68" Grid.Row="1" Width="122">
-            <Canvas HorizontalAlignment="Left" Height="51" Margin="0,0,-12,-5" VerticalAlignment="Top" Width="106">
+        <GroupBox x:Name="groupBox2" Header="Window Edge Snap" HorizontalAlignment="Left" Margin="501,72,0,0" VerticalAlignment="Top" Height="76" Grid.Row="1" Width="124">
+            <Canvas Height="51" Margin="4,4,4,4" VerticalAlignment="Top">
                 <Grid HorizontalAlignment="Left" Height="51" VerticalAlignment="Top" Width="100">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="29*"/>
@@ -42,11 +78,24 @@
                     </Grid.ColumnDefinitions>
                     <Label x:Name="label2" Content="px" Margin="1.667,18,16,7" RenderTransformOrigin="0.31,1.077" Grid.Column="1"/>
                     <CheckBox x:Name="checkBox_Copy5" Content="Enabled" IsChecked="{local:SettingBinding WindowSnapEnabled}" Margin="0,6,-6,16" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="textBox2" TextWrapping="Wrap" IsEnabled="{local:SettingBinding WindowSnapEnabled}" Text="{local:SettingBinding WindowSnapMargin}" Margin="0,22,40,6" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="windowEdgeSnapPx" TextWrapping="Wrap" IsEnabled="{local:SettingBinding WindowSnapEnabled}" Text="{local:SettingBinding WindowSnapMargin}" Margin="0,22,40,6" Grid.ColumnSpan="2"/>
                 </Grid>
             </Canvas>
         </GroupBox>
-        <CheckBox x:Name="checkBox" Content="Run at Startup" IsChecked="{local:SettingBinding RunAtStartup}" HorizontalAlignment="Left" Margin="10,109,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="checkBox" Content="Run at Startup" IsChecked="{local:SettingBinding RunAtStartup}" HorizontalAlignment="Left" Margin="20,122,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <GroupBox x:Name="groupBox3" Header="Mouse Bindings" HorizontalAlignment="Left" Margin="130,10,0,0" VerticalAlignment="Top" Height="117" Width="366" Grid.RowSpan="2">
+            <Canvas Margin="4,4,4,4">
+                <ComboBox SelectedItem="{local:SettingBinding MoveWindowButton}" x:Name="moveWindowComboBox" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="158" ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:MouseButton}}}" Canvas.Left="178" Canvas.Top="-1"/>
+                <TextBox x:Name="textBox1" Height="23" Canvas.Left="91" TextWrapping="Wrap" Text="Move Window" Canvas.Top="2" Width="87" BorderBrush="{x:Null}" Margin="0" />
+                <TextBox x:Name="textBox1_Copy" Height="23" Canvas.Left="91" TextWrapping="Wrap" Text="Resize Window" Canvas.Top="24" Width="87" BorderBrush="{x:Null}" Margin="0" />
+                <ComboBox SelectedItem="{local:SettingBinding ResizeWindowButton}" x:Name="resizeWindowComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:MouseButton}}}" Canvas.Left="178" Canvas.Top="21"/>
+                <TextBox x:Name="textBox1_Copy1" Height="23" TextWrapping="Wrap" Text="Maximise Window (double click)" Canvas.Top="46" Width="178" BorderBrush="{x:Null}" Margin="0" />
+                <ComboBox SelectedItem="{local:SettingBinding MaximiseWindowButton}" x:Name="maximiseWindowComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:MouseButton}}}" Canvas.Left="178" Canvas.Top="43"/>
+                <TextBox x:Name="textBox1_Copy2" Height="23" TextWrapping="Wrap" Text="Minimise Window (double click)" Canvas.Top="68" Width="178" BorderBrush="{x:Null}" Margin="0" />
+                <ComboBox SelectedItem="{local:SettingBinding MinimiseWindowButton}" x:Name="minimiseWindowComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:MouseButton}}}" Canvas.Left="178" Canvas.Top="65"/>
+
+            </Canvas>
+        </GroupBox>
 
     </Grid>
 </Window>

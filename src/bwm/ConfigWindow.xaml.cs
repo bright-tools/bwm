@@ -93,12 +93,13 @@ namespace bwm
 
             // TODO: Add keyboard shortcuts to menu.
 
+            System.Windows.Forms.MenuItem aboutMenuItem = new System.Windows.Forms.MenuItem("About", new EventHandler(ShowAbout));
             System.Windows.Forms.MenuItem optionsMenuItem = new System.Windows.Forms.MenuItem("Options", new EventHandler(ShowOptions));
             System.Windows.Forms.MenuItem exitMenuItem = new System.Windows.Forms.MenuItem("Exit", new EventHandler(Exit));
 
             notifyIcon = new System.Windows.Forms.NotifyIcon();
             notifyIcon.Icon = Properties.Resources.icon1;
-            notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(new System.Windows.Forms.MenuItem[] { optionsMenuItem, exitMenuItem });
+            notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(new System.Windows.Forms.MenuItem[] { aboutMenuItem, optionsMenuItem, exitMenuItem });
             notifyIcon.Visible = true;
         }
 
@@ -136,6 +137,12 @@ namespace bwm
         void ShowOptions(object sender, EventArgs e)
         {
             this.Show();
+        }
+
+        void ShowAbout(object sender, EventArgs e)
+        {
+            AboutDialog ad = new AboutDialog();
+            ad.ShowDialog();
         }
 
         void Exit(object sender, EventArgs e)

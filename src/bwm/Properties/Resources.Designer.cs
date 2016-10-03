@@ -69,5 +69,24 @@ namespace bwm.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}}
+        ///{\colortbl ;\red0\green0\blue255;}
+        ///{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+        ///\pard\f0\fs22\lang2057                  Apache License\par
+        ///           Version 2.0, January 2004\par
+        ///        {{\field{\*\fldinst{HYPERLINK http://www.apache.org/licenses/ }}{\fldrslt{http://www.apache.org/licenses/\ul0\cf0}}}}\f0\fs22\par
+        ///\par
+        ///   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\par
+        ///\par
+        ///
+        ///\pard\fi-810\li810    1. Def [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string LICENSE {
+            get {
+                return ResourceManager.GetString("LICENSE", resourceCulture);
+            }
+        }
     }
 }

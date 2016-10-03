@@ -6,7 +6,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:bwm"
         mc:Ignorable="d"
-        Title="BWM Settings" Height="250.667" Width="635.267" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="BWM Settings" Height="250.667" Width="645.267" Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="NoResize">
 
     <Grid>
         <Grid.Resources>

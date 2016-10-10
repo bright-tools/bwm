@@ -133,7 +133,7 @@ namespace bwm.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("LeftButton")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Left Mouse Button")]
         public global::bwm.MouseButton MoveWindowButton {
             get {
                 return ((global::bwm.MouseButton)(this["MoveWindowButton"]));
@@ -145,7 +145,7 @@ namespace bwm.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("RightButton")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Right Mouse Button")]
         public global::bwm.MouseButton ResizeWindowButton {
             get {
                 return ((global::bwm.MouseButton)(this["ResizeWindowButton"]));
@@ -157,7 +157,7 @@ namespace bwm.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("LeftButton")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Left Mouse Button")]
         public global::bwm.MouseButton MaximiseWindowButton {
             get {
                 return ((global::bwm.MouseButton)(this["MaximiseWindowButton"]));
@@ -169,13 +169,25 @@ namespace bwm.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("RightButton")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Right Mouse Button")]
         public global::bwm.MouseButton MinimiseWindowButton {
             get {
                 return ((global::bwm.MouseButton)(this["MinimiseWindowButton"]));
             }
             set {
                 this["MinimiseWindowButton"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
             }
         }
     }

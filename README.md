@@ -11,6 +11,11 @@ Window manager (WM) extensions for Windows:
 Keyboard modifers (and mouse button bindings) can be configured by selecting "Options" after right-clicking
 on the notification icon in the task area.
 
+Moving Windows
+--------------
+
+![movedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/move_demo.gif)
+
 History
 =======
 

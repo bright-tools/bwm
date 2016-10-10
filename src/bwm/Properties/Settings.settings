@@ -30,16 +30,19 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="MoveWindowButton" Type="bwm.MouseButton" Scope="User">
-      <Value Profile="(Default)">LeftButton</Value>
+      <Value Profile="(Default)">Left Mouse Button</Value>
     </Setting>
     <Setting Name="ResizeWindowButton" Type="bwm.MouseButton" Scope="User">
-      <Value Profile="(Default)">RightButton</Value>
+      <Value Profile="(Default)">Right Mouse Button</Value>
     </Setting>
     <Setting Name="MaximiseWindowButton" Type="bwm.MouseButton" Scope="User">
-      <Value Profile="(Default)">LeftButton</Value>
+      <Value Profile="(Default)">Left Mouse Button</Value>
     </Setting>
     <Setting Name="MinimiseWindowButton" Type="bwm.MouseButton" Scope="User">
-      <Value Profile="(Default)">RightButton</Value>
+      <Value Profile="(Default)">Right Mouse Button</Value>
+    </Setting>
+    <Setting Name="Setting" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

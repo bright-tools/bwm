@@ -8,7 +8,7 @@ Window manager (WM) extensions for Windows:
   * Double-right click with keyboard modifiers held down to minimise a window
   * Automatic "snapping" to the edges of the screen and other windows when moving or resizing
 
-Keyboard modifers can be configured by selecting "Options" after right-clicking
+Keyboard modifers (and mouse button bindings) can be configured by selecting "Options" after right-clicking
 on the notification icon in the task area.
 
 History

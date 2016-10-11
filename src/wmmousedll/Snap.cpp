@@ -30,7 +30,10 @@ limitations under the License.
    reducing the edge in size each time an overlap is found.
    
    If there's anything left at the end, we know that part of the edge is 
-   visible */
+   visible.
+   
+   Unfortunately this doesn't deal with windows which have a large fully
+   transparent area, such as the recording window in ScreenToGif! */
 BOOL IsEdgeVisible( HWND p_hWnd, const RECT* const p_windowArea )
 {
 	std::unordered_set<HWND> visited;
@@ -82,11 +85,27 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 
 		RemoveWindowBorder( &winRect, &winBorder );
 
+		/* These points represent the corners of the visible window.  We use these to check
+		   the (gross) visibility of the edges of the window so that we don't snap against
+		   items which are not visible to the user.
+		
+		   This does not catch the case where the corners are obscured, but part of the edge
+		   is still visible).
+
+		   However, using the corner check method does catch the situation where there is a
+		   high Z-order window with a transparent area, such as the recording window on
+		   ScreenToGif
+		*/
+		const POINT topLeft = { winRect.left, winRect.top };
+		const POINT bottomLeft = { winRect.left, winRect.bottom };
+		const POINT topRight = { winRect.right, winRect.top };
+		const POINT bottomRight = { winRect.right, winRect.bottom };
+
 		if( ( x_snaps.next + 2 ) >= x_snaps.size )
 		{
 			RECT leftEdge = { winRect.left, winRect.top,  winRect.left + 2, winRect.bottom };
 
-			if( IsEdgeVisible( p_hWnd, &( leftEdge )))
+			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( bottomLeft ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( leftEdge )))
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.left;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
@@ -99,7 +118,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 
 			RECT rightEdge = { winRect.right - 2, winRect.top,  winRect.right, winRect.bottom };
 
-			if( IsEdgeVisible( p_hWnd, &( rightEdge ) ) )
+			if( ( WindowFromPoint( topRight ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( rightEdge ) ) )
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.right;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.right - WindowSnapDistance;
@@ -114,7 +133,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 		{
 			RECT topEdge = { winRect.left, winRect.top,  winRect.right, winRect.top + 2 };
 
-			if( IsEdgeVisible( p_hWnd, &( topEdge ) ) )
+			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( topRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( topEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.top;
 				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
@@ -126,7 +145,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 
 			RECT bottomEdge = { winRect.left, winRect.bottom-2,  winRect.right, winRect.bottom };
 
-			if( IsEdgeVisible( p_hWnd, &( bottomEdge ) ) )
+			if( ( WindowFromPoint( bottomLeft ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( bottomEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.bottom;
 				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;

@@ -67,6 +67,14 @@ RECT CalcWindowBorder( HWND p_hWnd )
 	return border;
 }
 
+void RemoveWindowBorder( RECT* const p_win, const RECT* const p_border )
+{
+	p_win->left += p_border->left;
+	p_win->right -= p_border->right;
+	p_win->top += p_border->top;
+	p_win->bottom -= p_border->bottom;
+}
+
 HWND GetTopLevelWindow( HWND p_hWnd )
 {
 	// walk up the window hierarchie to find the corresponding

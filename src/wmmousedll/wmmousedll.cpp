@@ -268,6 +268,9 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                 }
 
 				UpdateSnaps();
+#if 0
+				DrawSnaps();
+#endif
 				border = CalcWindowBorder( hWnd );
 
                 // we're getting serious - capture the mouse
@@ -294,6 +297,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
 						return CallNextHookEx( hhook, nCode, wParam, lParam );
                     }
                 }
+				SetCursor( LoadCursor( NULL, IDC_SIZEALL ) );
 
                 switch (opMode)
                 {
@@ -345,8 +349,12 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                             // this check and resize all windows :)
                             if (style & WS_SIZEBOX)
                             {
-                                const LONG width    = (rWndInit.right - rWndInit.left);
-                                const LONG height    = (rWndInit.bottom - rWndInit.top);
+                                const LONG initialWidth    = (rWndInit.right - rWndInit.left);
+                                const LONG initialHeight    = (rWndInit.bottom - rWndInit.top);
+								RECT currentPos;
+								::GetWindowRect( hWnd, &currentPos );
+								const LONG currentHeight = ( currentPos.bottom - currentPos.top );
+								const LONG currentWidth = ( currentPos.right - currentPos.left );
 
                                 POINT mouse;
                                 POINT pos;
@@ -356,53 +364,66 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                                 const LONG dmousex    = mouse.x - ptMouseInit.x;
                                 const LONG dmousey    = mouse.y - ptMouseInit.y;
 
-                                if (ptMouseInit.x > rWndInit.left + (width/2))
+								/* Are we resizing in the right-half of the window? */
+                                if (ptMouseInit.x > rWndInit.left + (initialWidth/2))
                                 {
+									/* Left-hand edge of window is fixed */
                                     pos.x    = rWndInit.left;
-                                    size.x    = dmousex + width;
+									/* Width varies based on mouse delta */
+                                    size.x    = dmousex + initialWidth;
 
 									POINT ptRel;
-									ptRel.x = rWndInit.left + size.x;
+									ptRel.x = rWndInit.left;
 									ptRel.y = rWndInit.top;
 
-									size.x = XPosIncSnap( ptRel, 0, dmousey + height, false, true ) - pos.x;
+									size.x = XPosIncSnap( ptRel, size.x, currentHeight, false, true ) - pos.x;
                                 } else 
                                 {
-                                    pos.x    = rWndInit.left + dmousex;
-                                    size.x    = width - dmousex;
+									/* Left hand edge of window moves with mouse */
+                                    pos.x    =  rWndInit.left + dmousex;
+									/* Size adjusts to keep right-hand edge in place */
+                                    size.x    = initialWidth - dmousex;
 
 									POINT ptRel;
 									ptRel.x = pos.x;
 									ptRel.y = rWndInit.top;
 
-									pos.x = XPosIncSnap( ptRel, 0, dmousey + height, true, false );
+									pos.x = XPosIncSnap( ptRel, 0, currentHeight, true, false );
 
-									/* Compensate the width to deal with the position snap */
+									/* Compensate the width to deal with the fact that the left-hand edge
+									   is moving (but not the right-hand edge) */
 									size.x += ptRel.x - pos.x;
 								}
 
-                                if (ptMouseInit.y > rWndInit.top + (height/2))
+								/* Are we resizing in the bottom-half of the window? */
+                                if (ptMouseInit.y > rWndInit.top + (initialHeight/2))
                                 {
+									/* Top edge of window is fixed */
                                     pos.y    = rWndInit.top;
-                                    size.y    = dmousey + height;
+									/* Height varies based on mouse delta */
+                                    size.y    = dmousey + initialHeight;
 
 									POINT ptRel;
-									ptRel.x = rWndInit.left;
-									ptRel.y = rWndInit.top + size.y;
+									ptRel.x = pos.x;
+									ptRel.y = rWndInit.top;
 
-								 	size.y = YPosIncSnap( ptRel, dmousex + width, 0, false, true ) - pos.y;
+								 	size.y = YPosIncSnap( ptRel, currentWidth, size.y, false, true ) - pos.y;
 
                                 } else 
                                 {
+									/* Top edge of window moves with mouse */
                                     pos.y    = rWndInit.top + dmousey;
-                                    size.y    = height - dmousey;
+									/* Height of window adjusts to keep right-hand edge in place */
+                                    size.y    = initialHeight - dmousey;
 
 									POINT ptRel;
 									ptRel.x = pos.x;
 									ptRel.y = pos.y;
 
-									pos.y = YPosIncSnap( ptRel, dmousex + width, 0, true, false );
-									/* Compensate the height to deal with the position snap */
+									pos.y = YPosIncSnap( ptRel, currentWidth, 0, true, false );
+
+									/* Compensate the width to deal with the fact that the left-hand edge
+									is moving (but not the right-hand edge) */
 									size.y += ptRel.y - pos.y;
 
                                 }

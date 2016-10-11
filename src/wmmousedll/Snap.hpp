@@ -26,5 +26,6 @@ limitations under the License.
 LONG YPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom );
 LONG XPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom );
 void UpdateSnaps();
+void DrawSnaps( void );
 
 #endif

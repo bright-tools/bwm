@@ -27,5 +27,6 @@ bool IgnoreWindow();
 BOOL IsAltTabWindow( HWND hwnd );
 RECT CalcWindowBorder( HWND p_hWnd );
 HWND GetTopLevelWindow( HWND p_hWnd );
+void RemoveWindowBorder( RECT* const p_win, const RECT* const p_border );
 
 #endif

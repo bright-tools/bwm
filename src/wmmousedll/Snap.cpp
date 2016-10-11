@@ -21,6 +21,53 @@ limitations under the License.
 #include "Snap.hpp"
 #include "wmmousedll.h"
 #include "WinUtils.hpp"
+#include <unordered_set>
+
+/* Determine whether or not the area of a specified window is visible to the
+   user or whether it's covered by other windows.
+   
+   We do this by iterating upwards through the window stack in Z-order,
+   reducing the edge in size each time an overlap is found.
+   
+   If there's anything left at the end, we know that part of the edge is 
+   visible */
+BOOL IsEdgeVisible( HWND p_hWnd, const RECT* const p_windowArea )
+{
+	std::unordered_set<HWND> visited;
+	RECT thisWindowRect = *p_windowArea;
+
+	visited.insert( p_hWnd );
+
+	/* Iterate upwards through the Z-order */
+	while( (( p_hWnd = GetWindow( p_hWnd, GW_HWNDPREV ) ) != NULL ) && 
+		    (visited.find( p_hWnd ) == visited.end()) )
+	{
+		visited.insert( p_hWnd );
+		RECT otherWindowRect, windowIntersection;
+
+		/* Check visibility & get window rect */
+		if( IsWindowVisible( p_hWnd ) &&
+			GetWindowRect( p_hWnd, &otherWindowRect ))
+		{
+			/* Adjust the window rectangle for the border - we don't care
+			   if the border overlaps as it's transparent */
+			RECT border = CalcWindowBorder( p_hWnd );
+
+			RemoveWindowBorder( &otherWindowRect, &border );
+
+			/* Does this window area overlap the window edge area we're interested in? */
+			if( IntersectRect( &windowIntersection, &thisWindowRect, &otherWindowRect ))
+			{
+				/* Remove the area from the area under consideration */
+				RECT newSubtract;
+				SubtractRect( &newSubtract, &thisWindowRect, &windowIntersection );
+				thisWindowRect = newSubtract;
+			}
+		}
+	}
+
+	return !IsRectEmpty( &thisWindowRect );
+}
 
 BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 {
@@ -33,68 +80,57 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 		GetWindowRect( p_hWnd, &winRect );
 		RECT winBorder = CalcWindowBorder( p_hWnd );
 
-		winRect.left += winBorder.left;
-		winRect.right -= winBorder.right;
-		winRect.top += winBorder.top;
-		winRect.bottom -= winBorder.bottom;
-
-		/* These points represent the corners of the visible window.  We use these to check
-		the (gross) visibility of the edges of the window so that we don't snap against
-		items which are not visible to the user.
-
-		This does not catch the case where the corners are obscured, but part of the edge
-		is still visible).
-		*/
-		const POINT topLeft = { winRect.left, winRect.top };
-		const POINT bottomLeft = { winRect.left, winRect.bottom };
-		const POINT topRight = { winRect.right, winRect.top };
-		const POINT bottomRight = { winRect.right, winRect.bottom };
+		RemoveWindowBorder( &winRect, &winBorder );
 
 		if( ( x_snaps.next + 2 ) >= x_snaps.size )
 		{
-			/* Check that the top-most and bottom-most point of the left edge of the window are visible */
-			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( bottomLeft ) == p_hWnd ) )
+			RECT leftEdge = { winRect.left, winRect.top,  winRect.left + 2, winRect.bottom };
+
+			if( IsEdgeVisible( p_hWnd, &( leftEdge )))
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.left;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
 				x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.left + WindowSnapDistance;
-				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
-				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
+				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top - WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom + WindowSnapDistance;
 
 				x_snaps.next++;
 			}
 
-			/* Check that the top-most and bottom-most point of the right edge of the window are visible */
-			if( ( WindowFromPoint( topRight ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) )
+			RECT rightEdge = { winRect.right - 2, winRect.top,  winRect.right, winRect.bottom };
+
+			if( IsEdgeVisible( p_hWnd, &( rightEdge ) ) )
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.right;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.right - WindowSnapDistance;
 				x_snaps.snap_list[ x_snaps.next ].rect.right = winRect.right + WindowSnapDistance;
-				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top;
-				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom;
+				x_snaps.snap_list[ x_snaps.next ].rect.top = winRect.top - WindowSnapDistance;
+				x_snaps.snap_list[ x_snaps.next ].rect.bottom = winRect.bottom + WindowSnapDistance;
 				x_snaps.next++;
 			}
 		}
 
 		if( ( y_snaps.next + 2 ) >= y_snaps.size )
 		{
-			/* Check that the left-most and right-most point of the top edge of the window are visible */
-			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( topRight ) == p_hWnd ) )
+			RECT topEdge = { winRect.left, winRect.top,  winRect.right, winRect.top + 2 };
+
+			if( IsEdgeVisible( p_hWnd, &( topEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.top;
-				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
-				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
+				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
+				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right + WindowSnapDistance;
 				y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.top - WindowSnapDistance;
 				y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.top + WindowSnapDistance;
 				y_snaps.next++;
 			}
 
-			/* Check that the left-most and right-most point of the bottom edge of the window are visible */
-			if( ( WindowFromPoint( bottomLeft ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) )
+			RECT bottomEdge = { winRect.left, winRect.bottom-2,  winRect.right, winRect.bottom };
+
+			if( IsEdgeVisible( p_hWnd, &( bottomEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.bottom;
-				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left;
-				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right;
+				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
+				y_snaps.snap_list[ y_snaps.next ].rect.right = winRect.right + WindowSnapDistance;
 				y_snaps.snap_list[ y_snaps.next ].rect.top = winRect.bottom - WindowSnapDistance;
 				y_snaps.snap_list[ y_snaps.next ].rect.bottom = winRect.bottom + WindowSnapDistance;
 				y_snaps.next++;
@@ -219,9 +255,41 @@ void UpdateSnaps()
 	}
 }
 
+void DrawSnaps( void )
+{
+	HDC dc = GetDC( NULL );
+
+	for( unsigned i = 0; i < y_snaps.next; i++ )
+	{
+		Rectangle( dc, y_snaps.snap_list[ i ].rect.left, y_snaps.snap_list[ i ].rect.top,
+			y_snaps.snap_list[ i ].rect.right, y_snaps.snap_list[ i ].rect.bottom );
+	}
+
+	for( unsigned i = 0; i < x_snaps.next; i++ )
+	{
+		Rectangle( dc, x_snaps.snap_list[ i ].rect.left, x_snaps.snap_list[ i ].rect.top,
+		   			   x_snaps.snap_list[ i ].rect.right, x_snaps.snap_list[ i ].rect.bottom );
+	}
+
+
+	ReleaseDC( NULL, dc );
+}
+
+static HBRUSH hbrBkgnd;
+
 LONG YPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom )
 {
-	LONG retVal = ptRel.y;
+	LONG retVal;
+
+	if( top )
+	{
+		retVal = ptRel.y;
+	}
+	else
+	{
+		retVal = ptRel.y + height;
+	}
+
 
 	RECT topFace;
 	topFace.left = ptRel.x;
@@ -234,6 +302,19 @@ LONG YPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom )
 	bottomFace.right = ptRel.x + width;
 	bottomFace.top = ptRel.y + height;
 	bottomFace.bottom = ptRel.y + height + 1;
+
+#if 0
+	HDC dc = GetDC( NULL );
+	HBRUSH hbrBkgnd;
+
+	hbrBkgnd = CreateSolidBrush( RGB( 255, 0, 0 ) );
+	SelectObject( dc, hbrBkgnd );
+	Rectangle( dc, topFace.left, topFace.top - 1, topFace.right, topFace.bottom + 1 );
+	Rectangle( dc, bottomFace.left, bottomFace.top-1, bottomFace.right, bottomFace.bottom+1 );
+
+	ReleaseDC( NULL, dc );
+	DeleteObject( hbrBkgnd );
+#endif
 
 	for( unsigned i = 0; i < y_snaps.next; i++ )
 	{
@@ -251,7 +332,11 @@ LONG YPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom )
 		{
 			if( IntersectRect( &out, &( y_snaps.snap_list[ i ].rect ), &bottomFace ) )
 			{
-				retVal = y_snaps.snap_list[ i ].snap + border.bottom - height;
+				retVal = y_snaps.snap_list[ i ].snap + border.bottom;
+				if( top )
+				{
+					retVal -= height;
+				}
 				break;
 			}
 		}
@@ -262,7 +347,21 @@ LONG YPosIncSnap( POINT ptRel, LONG width, LONG height, bool top, bool bottom )
 
 LONG XPosIncSnap( POINT ptRel, LONG width, LONG height, bool left, bool right )
 {
-	LONG retVal = ptRel.x;
+	LONG retVal;
+
+	if( left )
+	{
+		/* If 'left' is set then either the left-hand edge of the window is moving, 
+		   or both the left and right edges are moving.  We return the X co-ordinate
+		   of the left-hand edge */
+		retVal = ptRel.x;
+	}
+	else
+	{
+		/* If only 'right' is set, then the left-hand edge of the window is not moving
+		   so we need to return the X co-ordinate of the right-hand edge */
+		retVal = ptRel.x + width;
+	}
 
 	RECT leftFace;
 	leftFace.left = ptRel.x;
@@ -275,6 +374,24 @@ LONG XPosIncSnap( POINT ptRel, LONG width, LONG height, bool left, bool right )
 	rightFace.right = ptRel.x + width + 1;
 	rightFace.top = ptRel.y;
 	rightFace.bottom = ptRel.y + height;
+
+#if 0
+
+	HDC dc = GetDC( NULL );
+	HBRUSH hbrBkgnd;
+
+	hbrBkgnd = CreateSolidBrush( RGB( 255, 0, 0 ) );
+	SelectObject( dc, hbrBkgnd );
+
+	SetDCBrushColor( dc, RGB( 255, 0, 0 ) );
+	SetDCPenColor( dc, RGB( 0, 0, 255 ) );
+	Rectangle( dc, leftFace.left-1, leftFace.top, leftFace.right+1, leftFace.bottom );
+	Rectangle( dc, rightFace.left-1, rightFace.top, rightFace.right+1, rightFace.bottom );
+
+	ReleaseDC( NULL, dc );
+	DeleteObject( hbrBkgnd );
+
+#endif
 
 	for( unsigned i = 0; i < x_snaps.next; i++ )
 	{
@@ -293,10 +410,15 @@ LONG XPosIncSnap( POINT ptRel, LONG width, LONG height, bool left, bool right )
 		{
 			if( IntersectRect( &out, &( x_snaps.snap_list[ i ].rect ), &rightFace ) )
 			{
-				retVal = x_snaps.snap_list[ i ].snap + border.right - width;
+				retVal = x_snaps.snap_list[ i ].snap + border.right;
+				if( left )
+				{
+					retVal -= width;
+				}
 				break;
 			}
 		}
 	}
+
 	return retVal;
 }

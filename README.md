@@ -2,8 +2,8 @@ Bright Window Manager (BWM)
 ===========================
 
 Window manager (WM) extensions for Windows:
-  * Left-click and drag with keyboard modifiers held down to move a window
-  * Right-click and drag with keyboard modifiers held down to resize a window
+  * Left-click and drag (anywhere in the window, not just the titlebar) with keyboard modifiers held down to move a window
+  * Right-click and drag (anywhere in the window, not just the frame) with keyboard modifiers held down to resize a window
   * Double-left click with keyboard modifiers held down to maximise/restore a window
   * Double-right click with keyboard modifiers held down to minimise a window
   * Automatic "snapping" to the edges of the screen and other windows when moving or resizing

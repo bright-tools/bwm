@@ -21,6 +21,12 @@ Resizing Windows
 
 ![resizedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/resize_demo.gif)
 
+Maximising/Restoring/Minimising Windows
+---------------------------------------
+
+![maximisedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/maximise_demo.gif)
+
+
 History
 =======
 

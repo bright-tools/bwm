@@ -1,6 +1,17 @@
 Bright Window Manager (BWM)
 ===========================
 
+What's it For?
+--------------
+
+BWM's purpose is to speed up the task of moving windows around by allowing
+you to perform operations like moving & re-sizing without needing to click on
+the titlebar or frame of the window (you hold down shortcut keys and then click
+anywhere in the Window).
+
+What does it Do?
+----------------
+
 Window manager (WM) extensions for Windows:
   * Left-click and drag (anywhere in the window, not just the titlebar) with keyboard modifiers held down to move a window
   * Right-click and drag (anywhere in the window, not just the frame) with keyboard modifiers held down to resize a window
@@ -26,6 +37,15 @@ Maximising/Restoring/Minimising Windows
 
 ![maximisedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/maximise_demo.gif)
 
+Dependencies
+============
+
+You'll need
+  * [.NET 4.5](https://www.microsoft.com/en-gb/download/details.aspx?id=30653)
+  * [Visual C Runtime](https://www.microsoft.com/en-gb/download/details.aspx?id=48145)
+
+The installer should tell you about these, but I've found that it's not as
+reliable as would be desired.
 
 History
 =======

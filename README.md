@@ -16,6 +16,11 @@ Moving Windows
 
 ![movedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/move_demo.gif)
 
+Resizing Windows
+----------------
+
+![resizedemo](https://raw.githubusercontent.com/bright-tools/bwm/master/assets/resize_demo.gif)
+
 History
 =======
 

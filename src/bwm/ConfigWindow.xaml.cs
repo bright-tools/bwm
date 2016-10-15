@@ -248,11 +248,22 @@ namespace bwm
 
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Apply()
         {
             bwm.Properties.Settings.Default.Save();
 
             UpdateAllSettings();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            Apply();
+            this.Hide();
+        }
+
+        private void applyButton_Click(object sender, RoutedEventArgs e)
+        {
+            Apply();
         }
     }
 }

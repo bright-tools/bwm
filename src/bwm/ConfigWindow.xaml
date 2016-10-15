@@ -36,7 +36,7 @@
                 <CheckBox x:Name="checkBox_Copy3" Content="Shift" IsChecked="{local:SettingBinding ModifierShift}" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Canvas.Top="61"/>
             </Canvas>
         </GroupBox>
-        <Button x:Name="applyButton" Content="Apply" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="button_Click" RenderTransformOrigin="0.182,-0.967" IsDefault="True">
+        <Button x:Name="okButton" Content="OK" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="button_Click" RenderTransformOrigin="0.182,-0.967" IsDefault="True">
             <Button.Style>
                 <Style TargetType="Button">
                 <Setter Property="IsEnabled" Value="False"/>
@@ -96,6 +96,26 @@
 
             </Canvas>
         </GroupBox>
+        <Button x:Name="applyButton" Content="Apply" HorizontalAlignment="Right" Margin="0,0,90,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Click="applyButton_Click" RenderTransformOrigin="0.182,-0.967">
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="IsEnabled" Value="False"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=moveWindowComboBox}" Value="False"/>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=resizeWindowComboBox}" Value="False"/>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=maximiseWindowComboBox}" Value="False"/>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=minimiseWindowComboBox}" Value="False"/>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=screenEdgeSnapPx}" Value="False"/>
+                                <Condition Binding="{Binding (Validation.HasError), ElementName=windowEdgeSnapPx}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="IsEnabled" Value="True"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
 
     </Grid>
 </Window>

@@ -18,6 +18,9 @@
   limitations under the License.
 */
 
+using System;
+using System.Reflection;
+using System.Threading;
 using System.Windows;
 
 namespace bwm
@@ -27,9 +30,31 @@ namespace bwm
     /// </summary>
     public partial class App : System.Windows.Application
     {
+        static Mutex mutex = new Mutex(true, "{" + Assembly.GetExecutingAssembly().GetType().GUID.ToString() + "}");
+
         public App() : base()
         {
             ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
+
+        /// <summary>
+        /// Application Entry Point.
+        /// </summary>
+        [System.STAThreadAttribute()]
+        public static void Main()
+        {
+            if (mutex.WaitOne(TimeSpan.Zero, true))
+            {
+                bwm.App app = new bwm.App();
+                app.InitializeComponent();
+                app.Run();
+            }
+            else
+            {
+                MessageBox.Show("BWM is already running.");
+            }
+        }
+
     }
+
 }

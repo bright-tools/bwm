@@ -47,24 +47,34 @@ BOOL IsEdgeVisible( HWND p_hWnd, const RECT* const p_windowArea )
 	{
 		visited.insert( p_hWnd );
 		RECT otherWindowRect, windowIntersection;
+		const LONG windowStyle = GetWindowLong( p_hWnd, GWL_EXSTYLE );
+		bool isTransparent = windowStyle & WS_EX_TRANSPARENT;
+		bool isLayered = windowStyle & WS_EX_LAYERED;
 
-		/* Check visibility & get window rect */
-		if( IsWindowVisible( p_hWnd ) &&
-			GetWindowRect( p_hWnd, &otherWindowRect ))
+		/* Discount transparent & layered windows 
+		   TODO: This is a something of a sledgehammer to crack a nut approach, as 
+		         it's only considering the window style, not whether or not the
+				 edge is visble */
+		if( !isTransparent && !isLayered )
 		{
-			/* Adjust the window rectangle for the border - we don't care
-			   if the border overlaps as it's transparent */
-			RECT border = CalcWindowBorder( p_hWnd );
-
-			RemoveWindowBorder( &otherWindowRect, &border );
-
-			/* Does this window area overlap the window edge area we're interested in? */
-			if( IntersectRect( &windowIntersection, &thisWindowRect, &otherWindowRect ))
+			/* Check visibility & get window rect */
+			if( IsWindowVisible( p_hWnd ) &&
+			    GetWindowRect( p_hWnd, &otherWindowRect ))
 			{
-				/* Remove the area from the area under consideration */
-				RECT newSubtract;
-				SubtractRect( &newSubtract, &thisWindowRect, &windowIntersection );
-				thisWindowRect = newSubtract;
+				/* Adjust the window rectangle for the border - we don't care
+				   if the border overlaps as it's transparent */
+				RECT border = CalcWindowBorder( p_hWnd );
+
+				RemoveWindowBorder( &otherWindowRect, &border );
+
+				/* Does this window area overlap the window edge area we're interested in? */
+				if( IntersectRect( &windowIntersection, &thisWindowRect, &otherWindowRect ))
+				{
+					/* Remove the area from the area under consideration */
+					RECT newSubtract;
+					SubtractRect( &newSubtract, &thisWindowRect, &windowIntersection );
+					thisWindowRect = newSubtract;
+				}
 			}
 		}
 	}
@@ -105,7 +115,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 		{
 			RECT leftEdge = { winRect.left, winRect.top,  winRect.left + 2, winRect.bottom };
 
-			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( bottomLeft ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( leftEdge )))
+			if( IsEdgeVisible( p_hWnd, &( leftEdge )))
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.left;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
@@ -118,7 +128,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 
 			RECT rightEdge = { winRect.right - 2, winRect.top,  winRect.right, winRect.bottom };
 
-			if( ( WindowFromPoint( topRight ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( rightEdge ) ) )
+			if( IsEdgeVisible( p_hWnd, &( rightEdge ) ) )
 			{
 				x_snaps.snap_list[ x_snaps.next ].snap = winRect.right;
 				x_snaps.snap_list[ x_snaps.next ].rect.left = winRect.right - WindowSnapDistance;
@@ -133,7 +143,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 		{
 			RECT topEdge = { winRect.left, winRect.top,  winRect.right, winRect.top + 2 };
 
-			if( ( WindowFromPoint( topLeft ) == p_hWnd ) || ( WindowFromPoint( topRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( topEdge ) ) )
+			if( IsEdgeVisible( p_hWnd, &( topEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.top;
 				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;
@@ -145,7 +155,7 @@ BOOL CALLBACK EnumWindowsProc( HWND p_hWnd, long lParam )
 
 			RECT bottomEdge = { winRect.left, winRect.bottom-2,  winRect.right, winRect.bottom };
 
-			if( ( WindowFromPoint( bottomLeft ) == p_hWnd ) || ( WindowFromPoint( bottomRight ) == p_hWnd ) || IsEdgeVisible( p_hWnd, &( bottomEdge ) ) )
+			if( IsEdgeVisible( p_hWnd, &( bottomEdge ) ) )
 			{
 				y_snaps.snap_list[ y_snaps.next ].snap = winRect.bottom;
 				y_snaps.snap_list[ y_snaps.next ].rect.left = winRect.left - WindowSnapDistance;

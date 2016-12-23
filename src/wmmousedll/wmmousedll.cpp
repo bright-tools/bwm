@@ -163,11 +163,15 @@ enum MouseButton MouseButtonFromWPARAM( WPARAM wParam )
 	enum MouseButton thisButton;
 	switch( wParam )
 	{
+		case WM_NCRBUTTONDBLCLK:
 		case WM_RBUTTONDBLCLK:
+		case WM_NCRBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 			thisButton = M_RIGHT;
 			break;
+		case WM_NCLBUTTONDBLCLK:
 		case WM_LBUTTONDBLCLK:
+		case WM_NCLBUTTONDOWN:
 		case WM_LBUTTONDOWN:
 			thisButton = M_LEFT;
 			break;
@@ -189,11 +193,14 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
 
     switch(wParam)
     {
+		case WM_NCLBUTTONDOWN:
+		case WM_NCRBUTTONDOWN:
 		case WM_RBUTTONDBLCLK:
 		case WM_LBUTTONDBLCLK:
         case WM_RBUTTONDOWN :
         case WM_LBUTTONDOWN :
 			{
+
 				bool modifierState = CheckModifierKeys();
 				if( !modifierState )
 				{
@@ -216,7 +223,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
 
 				/* If the window style has CS_DBLCLKS then we'll receive WM_LBUTTONDBLCLK and WM_RBUTTONDBLCLK messages
 				   If not, we have to monitor for double clicks manually */
-				if( (( winStyle & CS_DBLCLKS ) && (( wParam == WM_LBUTTONDBLCLK ) || (wParam == WM_RBUTTONDBLCLK ))) || 
+				if( (( winStyle & CS_DBLCLKS ) && (( wParam == WM_LBUTTONDBLCLK ) || (wParam == WM_RBUTTONDBLCLK ) || ( wParam == WM_NCRBUTTONDBLCLK ) )) ||
 					mouseHistory.IsDoubleClick( thisButton, mhs ) )
 				{
 					if( HandleDoubleClick( thisButton ) )
@@ -276,7 +283,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam )
                 // we're getting serious - capture the mouse
                 SetCapture(hWnd);
 
-                return 1;
+				return 1;
             }
 
         case WM_MOUSEMOVE :

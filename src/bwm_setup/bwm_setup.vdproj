@@ -250,15 +250,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Bright Window Manager"
-        "ProductCode" = "8:{C3932CCE-751E-4A57-A108-1C9133765DF7}"
-        "PackageCode" = "8:{B4FAFACB-2469-4393-9C3D-E9F43CA187FF}"
+        "ProductCode" = "8:{1F7AC124-F982-499B-8E80-5BA910B694F0}"
+        "PackageCode" = "8:{8F9579C9-49EB-4428-9B45-27FA763666F4}"
         "UpgradeCode" = "8:{E872ED19-D7CB-4C63-A2A8-CD714D341D6E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.1.5"
+        "ProductVersion" = "8:2.1.6"
         "Manufacturer" = "8:Bright Silence Ltd"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -880,7 +880,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_6C52E97183FC49A9A23F28FD9C7200BE"
             {
-            "SourcePath" = "8:..\\Release\\wmmouse.dll"
+            "SourcePath" = "8:..\\bwm\\bin\\Debug\\wmmouse.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_502E9FF6505642CDA38A0C23AADC0EB0"
@@ -908,7 +908,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8743E6CE853F490B904ABC83F8023D62"
             {
-            "SourcePath" = "8:..\\bwm\\obj\\Release\\bwm.exe"
+            "SourcePath" = "8:..\\bwm\\obj\\Debug\\bwm.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_502E9FF6505642CDA38A0C23AADC0EB0"

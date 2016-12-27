@@ -60,6 +60,8 @@ You'll need
   * [Microsoft Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48146)
   * [Microsoft Visual Studio 2015 Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2015InstallerProjects)
 
+You can find an overview of how the application works [here](how_it_works.md).
+
 References
 ==========
 

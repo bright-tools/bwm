@@ -19,6 +19,7 @@ limitations under the License.
 */
 
 #include "Snap.hpp"
+#include "Config.hpp"
 #include "wmmousedll.h"
 #include "WinUtils.hpp"
 #include <unordered_set>

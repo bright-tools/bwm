@@ -23,26 +23,37 @@ limitations under the License.
 #include "MouseHistory.hpp"
 #include "WinUtils.hpp"
 #include "Snap.hpp"
+#include "Config.hpp"
 #include <windows.h>
 
 #include "wchar.h"
 
-#define MAX_NUM_MODIFIER_KEYS 10U
-
-// enum possible states the window manager is in
+/// <summary>
+/// Represent window manager's state
+/// </summary>
 enum OpMode
 {
-    O_NONE,    // we're currently doing nothing
-    O_MOVE,    // we're dragging a window
-    O_SIZE    // we're sizing a window
+	/// <summary>
+	/// Currently doing nothing.
+	/// </summary>
+    O_NONE,    
+	/// <summary>
+	/// Currently moving a window
+	/// </summary>
+	O_MOVE,
+	/// <summary>
+	/// Currently resizing a window
+	/// </summary>
+	O_SIZE
 };
 
-#define    DLL_EXPORT extern "C" __declspec(dllexport)
-
-// Shared DATA
+// The data in this segment is shared between all the instances of the DLL
 #pragma data_seg ( "SHAREDDATA" )
-    // this is the total number of processes this dll is currently attached to
-    int                iInstanceCount        = 0;
+
+	/// <summary>
+	/// Total number of processes this DLL is currently attached to
+	/// </summary>
+	int                iInstanceCount        = 0;
 
     // the initial position in which a mouse button is pressed
     POINT            ptMouseInit    = {0,0};
@@ -60,20 +71,11 @@ enum OpMode
 	snap_info_t x_snaps = { NULL, MAX_SNAPS, 0 };
 	snap_info_t y_snaps = { NULL, MAX_SNAPS, 0 };
 
-	unsigned MonitorSnapDistance = 40;
-	unsigned WindowSnapDistance = 40;
 	bool            bHooked = false;
 	HHOOK            hhook = 0;
 	HINSTANCE        hInst = 0;
-	DWORD mod_count = 2;
-	int modifiers[ MAX_NUM_MODIFIER_KEYS ] = { VK_MENU, VK_CONTROL };
 
 	MouseHistory mouseHistory;
-
-	enum MouseButton MButtonMove = M_LEFT;
-	enum MouseButton MButtonResize = M_RIGHT;
-	enum MouseButton MButtonMinimise = M_LEFT;
-	enum MouseButton MButtonMaximise = M_RIGHT;
 
 #pragma data_seg ()
 
@@ -109,14 +111,19 @@ BOOL APIENTRY DllMain( HINSTANCE hinstDLL,
     return TRUE;
 }
 
-
-bool CheckModifierKeys()
+/// <summary>
+/// Determine whether or not the currently configured modifer keys are being held down
+/// </summary>
+/// <returns>
+/// true in the case that the user is currently holding down the configured 
+//  modifier keys, false otherwise
+/// </returns>
+bool CheckModifierKeys( void )
 {
     bool ret_val = true;
 
-    unsigned i;
     /* Check each of the modifiers in turn */
-    for( i = 0;
+    for( unsigned i = 0U;
          i < mod_count;
          i++ )
     {
@@ -485,47 +492,4 @@ DLL_EXPORT int GetInstanceCount()
     return iInstanceCount;
 }
 
-DLL_EXPORT void SetScreenSnap(int val)
-{
-	MonitorSnapDistance = val;
-}
-
-DLL_EXPORT void SetWindowSnap( int val )
-{
-	WindowSnapDistance = val;
-}
-
-DLL_EXPORT void SetMoveMButton( int val )
-{
-	MButtonMove = (enum MouseButton)val;
-}
-
-DLL_EXPORT void SetResizeMButton( int val )
-{
-	MButtonResize = ( enum MouseButton )val;
-}
-
-DLL_EXPORT void SetMinimiseMButton( int val )
-{
-	MButtonMinimise = ( enum MouseButton )val;
-}
-
-DLL_EXPORT void SetMaximiseMButton( int val )
-{
-	MButtonMaximise = ( enum MouseButton )val;
-}
-
-DLL_EXPORT void SetModifiers( int count, int mods[] )
-{
-    
-    if( ( count > 1 ) && ( count < MAX_NUM_MODIFIER_KEYS ) )
-    {
-        int i;
-        for( i = 0; i < count; i++ )
-        {
-            modifiers[ i ] = mods[ i ];
-        }
-        mod_count = count;
-    }
-}
 

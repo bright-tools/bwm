@@ -24,14 +24,11 @@ limitations under the License.
 
 #include <Windows.h>
 
+#define    DLL_EXPORT extern "C" __declspec(dllexport)
+
 #pragma once
 
 #define MAX_SNAPS 200U
-
-typedef void (*SETKBHOOK) ();
-typedef void (*REMOVEKBHOOK) ();
-typedef int  (*GETINSTANCECOUNT) ();
-typedef void (*SETMODIFIERS ) ( int count, int mods[] );
 
 enum MouseButton
 {
@@ -62,9 +59,5 @@ extern snap_info_t x_snaps;
 extern snap_info_t y_snaps;
 extern HWND            hWnd;
 extern RECT border;
-
-extern unsigned MonitorSnapDistance;
-extern unsigned WindowSnapDistance;
-
 
 #endif // __WMMOUSEDLL_H__

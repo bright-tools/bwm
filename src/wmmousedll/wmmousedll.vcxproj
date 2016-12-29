@@ -84,12 +84,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="MouseHistory.cpp" />
     <ClCompile Include="Snap.cpp" />
     <ClCompile Include="WinUtils.cpp" />
     <ClCompile Include="wmmousedll.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.hpp" />
     <ClInclude Include="MouseHistory.hpp" />
     <ClInclude Include="Snap.hpp" />
     <ClInclude Include="WinUtils.hpp" />

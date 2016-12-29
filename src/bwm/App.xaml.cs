@@ -19,7 +19,7 @@
 */
 
 using System;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 
@@ -30,7 +30,9 @@ namespace bwm
     /// </summary>
     public partial class App : System.Windows.Application
     {
-        static Mutex mutex = new Mutex(true, "{" + Assembly.GetExecutingAssembly().GetType().GUID.ToString() + "}");
+        static GuidAttribute guidAttr = (GuidAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
+        static String mutexName = "{" + guidAttr.Value + "}";
+        static Mutex mutex = new Mutex(true, mutexName);
 
         public App() : base()
         {
